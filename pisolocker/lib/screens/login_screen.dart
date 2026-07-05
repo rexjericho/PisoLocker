@@ -51,19 +51,23 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-      void _handleLogin() async {
+  void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
       
+      if (!mounted) return;
+      
       setState(() => _isLoading = false);
       
-      if (mounted) {
-        // Navigate to home screen after successful login
-        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-      }
+      // Use WidgetsBinding to ensure we're on the next frame
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+        }
+      });
     }
   }
 
