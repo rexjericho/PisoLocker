@@ -1,4 +1,16 @@
 ```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+dist/
+build/
+
+# Dependencies
+.venv/
+venv/
+node_modules/
 # Build artifacts
 *.dart_tool/
 *.build/
@@ -12,11 +24,32 @@ pubspec.lock
 # Logs and temp files
 *.log
 *.tmp
+*.swp
 
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Dart/Flutter specific
+.dart_tool/
+.packages
+*.g.dart
+*.freezed.dart
+
+# Coverage
+coverage/
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
 
 # Editors
 .idea/
