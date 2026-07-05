@@ -1,5 +1,13 @@
 ```
-# Flutter/Dart specific
+# Dependencies
+.pub/
+.buildlog
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Build
+build/
 .dart_tool/
 .build/
 packages/
@@ -38,16 +46,12 @@ vendor/
 *.ipr
 *.iws
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Coverage
+coverage/
 
-# Temporary folders
-tmp/
-temp/
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
 ```
