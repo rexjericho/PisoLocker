@@ -2,6 +2,11 @@
 # Flutter/Dart specific
 .dart_tool/
 .build/
+packages/
+*.iws
+*.sw?
+lib/**/*.g.dart
+test/**/.plugin_symlinks
 *.g.dart
 *.freezed.dart
 
@@ -19,6 +24,13 @@ node_modules/
 .env.local
 *.env.*
 
+# Dependencies
+node_modules/
+vendor/
+
+# Logs
+*.log
+**/logs
 # Editors
 .vscode/
 .idea/
@@ -28,5 +40,14 @@ node_modules/
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# Temporary folders
+tmp/
+temp/
 ```
