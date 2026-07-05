@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen>
       
       if (mounted) {
         // Navigate to home screen after successful login
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
       }
     }
   }

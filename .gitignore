@@ -1,49 +1,49 @@
-# Dependencies
-.pub/
-.dart_tool/
-.build/
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# Editors
-.vscode/
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# OS generated files
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Icon?
-.directory
-*.nib
-obj/
+```
+# Build artifacts
 *.o
 *.obj
 *.exe
 *.dll
 *.so
-*.dylib
 *.a
-*.lib
 *.out
-*.class
-*.jar
-*.war
-*.ear
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+target/
+.gradle/
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# System files
+.DS_Store
+Thumbs.db
+.env
+.env.local
+*.env.*
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Compressed files
 *.zip
-*.tar
 *.gz
+*.tar
 *.tgz
 *.bz2
 *.xz
@@ -63,16 +63,4 @@ obj/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-coverage/
-htmlcov/
-.coverage
-.mypy_cache/
-.pytest_cache/
-target/
-.gradle/
-node_modules/
-venv/
-.venv/
-__pycache__/
-dist/
-build/
+```
