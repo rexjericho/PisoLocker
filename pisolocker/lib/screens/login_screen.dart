@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  void _handleLogin() async {
+      void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       
@@ -61,16 +61,8 @@ class _LoginScreenState extends State<LoginScreen>
       setState(() => _isLoading = false);
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Welcome back!'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
+        // Navigate to home screen after successful login
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     }
   }
