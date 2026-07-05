@@ -49,6 +49,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _unlockAnimationController.dispose();
     super.dispose();
   }
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
 
   void _onBottomNavTap(int index) {
     setState(() {
@@ -173,6 +175,36 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                       elevation: 4,
                     ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Lock Button
+              SizedBox(
+                width: double.infinity,
+                height: 120,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: Implement lock functionality
+                    _showActionDialog(context, 'Lock Locker', 'Are you sure you want to lock this locker?');
+                  },
+                  icon: const Icon(Icons.lock, size: 32),
+                  label: const Text(
+                    'LOCK',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 4,
                   ),
                 ),
               ),
@@ -207,6 +239,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       ),
                       elevation: 4,
                     ),
+              SizedBox(
+                width: double.infinity,
+                height: 120,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: Implement unlock functionality
+                    _showActionDialog(context, 'Unlock Locker', 'Are you sure you want to unlock this locker?');
+                  },
+                  icon: const Icon(Icons.lock_open, size: 32),
+                  label: const Text(
+                    'UNLOCK',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 4,
                   ),
                 ),
               ),
@@ -214,6 +269,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               // End Session Button
               OutlinedButton.icon(
                 onPressed: () {
+                  // TODO: Implement end session functionality
                   _showEndSessionDialog(context);
                 },
                 icon: const Icon(Icons.logout),
