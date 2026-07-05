@@ -1,12 +1,12 @@
 ```
 # Build artifacts
+*.class
 *.o
 *.obj
-*.exe
-*.dll
-*.so
-*.a
 *.out
+build/
+dist/
+target/
 
 # Dependencies
 node_modules/
@@ -15,7 +15,6 @@ venv/
 __pycache__/
 .mypy_cache/
 .pytest_cache/
-target/
 .gradle/
 
 # Editor/IDE files
