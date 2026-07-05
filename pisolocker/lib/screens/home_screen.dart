@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _rentalStartTime = DateTime.now();
-    
+
     // Lock button animation
     _lockAnimationController = AnimationController(
       vsync: this,
@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _lockScaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
       CurvedAnimation(parent: _lockAnimationController, curve: Curves.easeInOut),
     );
-    
+
     // Unlock button animation
     _unlockAnimationController = AnimationController(
       vsync: this,
@@ -49,8 +49,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _unlockAnimationController.dispose();
     super.dispose();
   }
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
 
   void _onBottomNavTap(int index) {
     setState(() {
@@ -60,12 +58,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleLock() async {
     if (_isAnimating) return;
-    
+
     setState(() => _isAnimating = true);
-    
+
     await _lockAnimationController.forward();
     await _lockAnimationController.reverse();
-    
+
     if (mounted) {
       _showActionDialog(context, 'Lock Locker', 'Are you sure you want to lock this locker?');
       setState(() => _isAnimating = false);
@@ -74,12 +72,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleUnlock() async {
     if (_isAnimating) return;
-    
+
     setState(() => _isAnimating = true);
-    
+
     await _unlockAnimationController.forward();
     await _unlockAnimationController.reverse();
-    
+
     if (mounted) {
       _showActionDialog(context, 'Unlock Locker', 'Are you sure you want to unlock this locker?');
       setState(() => _isAnimating = false);
@@ -175,36 +173,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       elevation: 4,
                     ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Lock Button
-              SizedBox(
-                width: double.infinity,
-                height: 120,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement lock functionality
-                    _showActionDialog(context, 'Lock Locker', 'Are you sure you want to lock this locker?');
-                  },
-                  icon: const Icon(Icons.lock, size: 32),
-                  label: const Text(
-                    'LOCK',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 4,
                   ),
                 ),
               ),
@@ -239,29 +207,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       elevation: 4,
                     ),
-              SizedBox(
-                width: double.infinity,
-                height: 120,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement unlock functionality
-                    _showActionDialog(context, 'Unlock Locker', 'Are you sure you want to unlock this locker?');
-                  },
-                  icon: const Icon(Icons.lock_open, size: 32),
-                  label: const Text(
-                    'UNLOCK',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 4,
                   ),
                 ),
               ),
@@ -269,7 +214,6 @@ class _HomeScreenState extends State<HomeScreen> {
               // End Session Button
               OutlinedButton.icon(
                 onPressed: () {
-                  // TODO: Implement end session functionality
                   _showEndSessionDialog(context);
                 },
                 icon: const Icon(Icons.logout),
@@ -377,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final hours = remaining.inHours;
         final minutes = remaining.inMinutes.remainder(60);
         final seconds = remaining.inSeconds.remainder(60);
-        
+
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
