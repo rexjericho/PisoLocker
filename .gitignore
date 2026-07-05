@@ -1,63 +1,36 @@
 ```
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-dist/
-build/
-
-# Dependencies
-.venv/
-venv/
-node_modules/
-# Build artifacts
-*.dart_tool/
-*.build/
-build/
-
-# Dependencies
-pubspec.lock
+# Flutter/Dart specific
 .dart_tool/
-.packages
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
+.build/
+packages/
+*.iws
+*.sw?
+lib/**/*.g.dart
+test/**/.plugin_symlinks
 
 # Environment
 .env
 .env.local
 .env.*
 
-# Editors
-.vscode/
-.idea/
+# Dependencies
+node_modules/
+vendor/
 
-# Dart/Flutter specific
-.dart_tool/
-.packages
-*.g.dart
-*.freezed.dart
-
-# Coverage
-coverage/
-*.lcov
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.backup
-
-# Editors
-.idea/
-.vscode/
-*.swp
-*.swo
+# Logs
+*.log
+**/logs
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# Temporary folders
+tmp/
+temp/
 ```
