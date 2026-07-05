@@ -7,11 +7,22 @@ packages/
 *.sw?
 lib/**/*.g.dart
 test/**/.plugin_symlinks
+*.g.dart
+*.freezed.dart
+
+# Dependencies
+.pub/
+node_modules/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
 
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
 # Dependencies
 node_modules/
@@ -20,6 +31,12 @@ vendor/
 # Logs
 *.log
 **/logs
+# Editors
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
 
 # OS generated files
 .DS_Store
