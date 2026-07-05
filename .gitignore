@@ -1,0 +1,31 @@
+```
+# Flutter/Dart specific
+.dart_tool/
+.packages
+pubspec.lock
+*.g.dart
+*.freezed.dart
+
+# Build outputs
+build/
+**/ios/Flutter/.last_build_id
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+**/logs
+
+# Environment variables
+.env
+.env.local
+*.env.*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+```
