@@ -11,6 +11,15 @@ build/
 .venv/
 venv/
 node_modules/
+# Build artifacts
+*.dart_tool/
+*.build/
+build/
+
+# Dependencies
+pubspec.lock
+.dart_tool/
+.packages
 
 # Logs and temp files
 *.log
@@ -41,6 +50,12 @@ coverage/
 *.temp
 *.bak
 *.backup
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # OS generated files
 .DS_Store
