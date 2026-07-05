@@ -545,66 +545,6 @@ class _SignupScreenState extends State<SignupScreen>
                               ),
                               const SizedBox(height: 24),
 
-                              // Divider
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Divider(
-                                      color: isDark ? Colors.grey[700] : Colors.grey[300],
-                                      thickness: 1,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: Text(
-                                      'or sign up with',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        color: isDark ? Colors.grey[500] : Colors.grey[600],
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Divider(
-                                      color: isDark ? Colors.grey[700] : Colors.grey[300],
-                                      thickness: 1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Social Signup Buttons
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  _buildSocialButton(
-                                    icon: Icons.g_mobiledata,
-                                    color: Colors.red,
-                                    onTap: () {
-                                      // Handle Google signup
-                                    },
-                                  ),
-                                  const SizedBox(width: 16),
-                                  _buildSocialButton(
-                                    icon: Icons.facebook,
-                                    color: Colors.blue,
-                                    onTap: () {
-                                      // Handle Facebook signup
-                                    },
-                                  ),
-                                  const SizedBox(width: 16),
-                                  _buildSocialButton(
-                                    icon: Icons.apple,
-                                    color: Colors.black,
-                                    onTap: () {
-                                      // Handle Apple signup
-                                    },
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
-
                               // Login Link
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -641,40 +581,6 @@ class _SignupScreenState extends State<SignupScreen>
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSocialButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.grey[200]!,
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          size: 28,
-          color: color,
         ),
       ),
     );
