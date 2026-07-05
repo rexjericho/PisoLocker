@@ -1,36 +1,30 @@
 ```
-# Flutter/Dart specific
+# Dependencies
+.pub/
+.buildlog
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Build
+build/
 .dart_tool/
-.build/
-packages/
-*.iws
-*.sw?
-lib/**/*.g.dart
-test/**/.plugin_symlinks
 
 # Environment
 .env
 .env.local
 .env.*
-
-# Dependencies
-node_modules/
-vendor/
+!.env.example
 
 # Logs
 *.log
-**/logs
 
-# OS generated files
+# Coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-
-# Temporary folders
-tmp/
-temp/
 ```

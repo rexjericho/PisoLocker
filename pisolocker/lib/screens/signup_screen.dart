@@ -132,7 +132,7 @@ class _SignupScreenState extends State<SignupScreen>
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: Card(
                       elevation: 20,
-                      shadowColor: Colors.black26,
+                      shadowColor: Colors.black.withOpacity(0.26),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
@@ -178,7 +178,7 @@ class _SignupScreenState extends State<SignupScreen>
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF667eea).withValues(alpha: 0.4),
+                                      color: const Color(0xFF667eea).withOpacity(0.4),
                                       blurRadius: 15,
                                       offset: const Offset(0, 8),
                                     ),
@@ -518,7 +518,7 @@ class _SignupScreenState extends State<SignupScreen>
                                     backgroundColor: const Color(0xFF667eea),
                                     foregroundColor: Colors.white,
                                     elevation: 8,
-                                    shadowColor: const Color(0xFF667eea).withValues(alpha: 0.4),
+                                    shadowColor: const Color(0xFF667eea).withOpacity(0.4),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
