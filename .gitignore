@@ -1,13 +1,25 @@
 ```
-# Flutter/Dart specific
-.dart_tool/
-.build/
-*.g.dart
-*.freezed.dart
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+dist/
+build/
 
 # Dependencies
-.pub/
+.venv/
+venv/
 node_modules/
+# Build artifacts
+*.dart_tool/
+*.build/
+build/
+
+# Dependencies
+pubspec.lock
+.dart_tool/
+.packages
 
 # Logs and temp files
 *.log
@@ -17,14 +29,33 @@ node_modules/
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
 
 # Editors
 .vscode/
 .idea/
-*.iml
-*.ipr
-*.iws
+
+# Dart/Flutter specific
+.dart_tool/
+.packages
+*.g.dart
+*.freezed.dart
+
+# Coverage
+coverage/
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # OS generated files
 .DS_Store
