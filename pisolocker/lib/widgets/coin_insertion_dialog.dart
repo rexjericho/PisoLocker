@@ -25,9 +25,6 @@ class _CoinInsertionDialogState extends State<CoinInsertionDialog> {
   
   static const int secondsPerPiso = 20 * 60; // 20 minutes per Piso
   
-  late TickerProviderStateMixin _tickerProvider;
-  late AnimationController _timerController;
-
   @override
   void initState() {
     super.initState();
@@ -35,32 +32,18 @@ class _CoinInsertionDialogState extends State<CoinInsertionDialog> {
   }
 
   void _startTimer() {
-    _timerController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 1),
-    );
-
-    _timerController.addListener(() {
-      if (_timeRemaining > 0 && !_isTimedOut) {
-        setState(() {
-          _timeRemaining--;
-        });
-      } else if (_timeRemaining <= 0 && !_isTimedOut) {
-        setState(() {
-          _isTimedOut = true;
-        });
-        _timerController.dispose();
-      }
-    });
-
-    // Timer ticks every second
     Future.doWhile(() async {
       await Future.delayed(const Duration(seconds: 1));
-      if (mounted && _timeRemaining > 0 && !_isTimedOut) {
-        _timerController.forward(from: 0);
-        return true;
-      }
-      return false;
+      if (!mounted || _isTimedOut) return false;
+      
+      setState(() {
+        _timeRemaining--;
+        if (_timeRemaining <= 0) {
+          _isTimedOut = true;
+        }
+      });
+      
+      return !_isTimedOut;
     });
   }
 
@@ -95,7 +78,6 @@ class _CoinInsertionDialogState extends State<CoinInsertionDialog> {
 
   @override
   void dispose() {
-    _timerController.dispose();
     super.dispose();
   }
 
