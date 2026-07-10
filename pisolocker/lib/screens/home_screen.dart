@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? userName;
+  final bool hasRentedLocker;
+
+  const HomeScreen({super.key, this.userName, this.hasRentedLocker = true});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -18,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _lockScaleAnimation;
   late Animation<double> _unlockScaleAnimation;
   bool _isAnimating = false;
+  bool _isLocked = false; // Track locker status
 
   @override
   void initState() {
@@ -72,7 +76,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     if (mounted) {
       _showActionDialog(context, 'Lock Locker', 'Are you sure you want to lock this locker?');
-      setState(() => _isAnimating = false);
+      setState(() {
+        _isAnimating = false;
+        _isLocked = true;
+      });
     }
   }
 
@@ -86,12 +93,127 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     if (mounted) {
       _showActionDialog(context, 'Unlock Locker', 'Are you sure you want to unlock this locker?');
-      setState(() => _isAnimating = false);
+      setState(() {
+        _isAnimating = false;
+        _isLocked = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Show overlay if user hasn't rented a locker
+    if (!widget.hasRentedLocker) {
+      return Scaffold(
+        body: Stack(
+          children: [
+            // Background content (blurred or dimmed)
+            Opacity(
+              opacity: 0.3,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.lock_outline, size: 100, color: Colors.grey),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No Active Rental',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Overlay directing to rent locker
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                ),
+                child: Center(
+                  child: Card(
+                    margin: const EdgeInsets.all(32),
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.shopping_cart_outlined,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'No Locker Rented Yet',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Please rent a locker to access this screen',
+                            style: TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).pushNamedAndRemoveUntil('/locker', (route) => false);
+                            },
+                            icon: const Icon(Icons.storage),
+                            label: const Text('Rent a Locker'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: _onBottomNavTap,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.storage_outlined),
+              selectedIcon: Icon(Icons.storage),
+              label: 'Rent Locker',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.help_outline),
+              selectedIcon: Icon(Icons.help),
+              label: 'FAQ',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -112,12 +234,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'PisoLocker',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'PisoLocker',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                if (widget.userName != null)
+                  Text(
+                    'Welcome, ${widget.userName}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+              ],
             ),
           ],
         ),
@@ -131,19 +267,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const SizedBox(height: 32),
-              // Locker ID Label
+              // Locker Status Indicator
+              _buildLockerStatusCard(),
+              const SizedBox(height: 16),
+              // Locker ID Label (smaller)
               _buildInfoCard(
                 label: 'Locker ID',
                 value: _lockerId,
                 icon: Icons.storage,
+                isSmall: true,
               ),
               const SizedBox(height: 16),
-              // OTP Label
+              // OTP Label (smaller)
               _buildInfoCard(
                 label: 'Your OTP',
                 value: _otp,
                 icon: Icons.password,
                 isOtp: true,
+                isSmall: true,
               ),
               const SizedBox(height: 16),
               // Time Remaining Label
@@ -271,10 +412,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     required String value,
     required IconData icon,
     bool isOtp = false,
+    bool isSmall = false,
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
@@ -290,14 +432,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             children: [
               Icon(
                 icon,
-                size: 20,
+                size: isSmall ? 16 : 20,
                 color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: isSmall ? 12 : 14,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -308,11 +450,80 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Text(
             value,
             style: TextStyle(
-              fontSize: isOtp ? 28 : 24,
+              fontSize: isSmall ? (isOtp ? 20 : 16) : (isOtp ? 28 : 24),
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSurface,
               letterSpacing: isOtp ? 4 : 0,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLockerStatusCard() {
+    final statusColor = _isLocked 
+        ? Theme.of(context).colorScheme.error 
+        : Theme.of(context).colorScheme.primary;
+    final statusIcon = _isLocked ? Icons.lock : Icons.lock_open;
+    final statusText = _isLocked ? 'LOCKED' : 'UNLOCKED';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            statusColor.withValues(alpha: 0.2),
+            statusColor.withValues(alpha: 0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: statusColor,
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: statusColor.withValues(alpha: 0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            statusIcon,
+            size: 32,
+            color: statusColor,
+          ),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Locker Status',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                statusText,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: statusColor,
+                  letterSpacing: 2,
+                ),
+              ),
+            ],
           ),
         ],
       ),
