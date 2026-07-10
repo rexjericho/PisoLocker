@@ -1,5 +1,6 @@
 ```
 # Build artifacts
+*.class
 *.o
 *.obj
 *.exe
@@ -7,6 +8,9 @@
 *.so
 *.a
 *.out
+build/
+dist/
+target/
 
 # Dependencies
 node_modules/
@@ -15,7 +19,6 @@ venv/
 __pycache__/
 .mypy_cache/
 .pytest_cache/
-target/
 .gradle/
 
 # Editor/IDE files
@@ -59,8 +62,4 @@ htmlcov/
 *.Z
 *.lz
 *.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
 ```
