@@ -1,24 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/locker_provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  final String? userName;
-  final bool hasRentedLocker;
-  final String? lockerId;
-  final String? otp;
-  final String? location;
-  final DateTime? rentalEndTime;
-  final Duration? totalRentalDuration;
-
-  const HomeScreen({
-    super.key, 
-    this.userName, 
-    this.hasRentedLocker = true,
-    this.lockerId,
-    this.otp,
-    this.location,
-    this.rentalEndTime,
-    this.totalRentalDuration,
-  });
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -111,8 +96,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<LockerProvider>(context);
+    
     // Show overlay if user hasn't rented a locker
-    if (!widget.hasRentedLocker) {
+    if (!provider.hasRentedLocker || !provider.isRentalActive()) {
       return Scaffold(
         body: Stack(
           children: [
@@ -254,9 +241,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     fontSize: 20,
                   ),
                 ),
-                if (widget.userName != null)
+                if (provider.userName.isNotEmpty)
                   Text(
-                    'Welcome, ${widget.userName}',
+                    'Welcome, ${provider.userName}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -291,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               // Locker ID Label (smaller)
               _buildInfoCard(
                 label: 'Locker ID',
-                value: widget.lockerId ?? 'N/A',
+                value: provider.lockerId ?? 'N/A',
                 icon: Icons.storage,
                 isSmall: true,
               ),
@@ -299,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               // OTP Label (smaller)
               _buildInfoCard(
                 label: 'Your OTP',
-                value: widget.otp ?? 'N/A',
+                value: provider.otp ?? 'N/A',
                 icon: Icons.password,
                 isOtp: true,
                 isSmall: true,
@@ -308,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               // Location Label
               _buildInfoCard(
                 label: 'Location',
-                value: widget.location ?? 'N/A',
+                value: provider.location ?? 'N/A',
                 icon: Icons.location_on,
                 isSmall: true,
               ),
@@ -679,8 +666,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Duration _calculateTimeRemaining() {
-    if (widget.rentalEndTime == null) return Duration.zero;
-    final remaining = widget.rentalEndTime!.difference(DateTime.now());
+    if (provider.rentalEndTime == null) return Duration.zero;
+    final remaining = provider.rentalEndTime!.difference(DateTime.now());
     return remaining.isNegative ? Duration.zero : remaining;
   }
 
@@ -688,7 +675,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return StreamBuilder(
       stream: Stream.periodic(const Duration(seconds: 1)),
       builder: (context, snapshot) {
-        final expirationTime = widget.rentalEndTime;
+        final expirationTime = provider.rentalEndTime;
         final currentTime = DateTime.now();
         
         if (expirationTime == null) {
@@ -917,6 +904,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _showEndSessionDialog(BuildContext context) {
+    final provider = Provider.of<LockerProvider>(context, listen: false);
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -933,14 +922,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             FilledButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // End the current session by navigating to home without locker data
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => const HomeScreen(
-                      hasRentedLocker: false,
-                    ),
-                  ),
-                );
+                // End the current session using provider
+                provider.endSession();
               },
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,
@@ -955,6 +938,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _showSignOutDialog(BuildContext context) {
+    final provider = Provider.of<LockerProvider>(context, listen: false);
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -971,6 +956,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             FilledButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                // Logout using provider and navigate to login
+                provider.logout();
                 Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
               },
               style: FilledButton.styleFrom(
