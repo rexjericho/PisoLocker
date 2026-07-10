@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/locker_screen.dart';
+import 'providers/locker_provider.dart';
 
 void main() {
   runApp(const MainApp());
@@ -13,44 +15,38 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PisoLocker',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF667eea),
-          brightness: Brightness.light,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LockerProvider()),
+      ],
+      child: MaterialApp(
+        title: 'PisoLocker',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF667eea),
+            brightness: Brightness.light,
+          ),
+          fontFamily: 'Poppins',
         ),
-        fontFamily: 'Poppins',
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF667eea),
-          brightness: Brightness.dark,
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF667eea),
+            brightness: Brightness.dark,
+          ),
+          fontFamily: 'Poppins',
         ),
-        fontFamily: 'Poppins',
-      ),
-      themeMode: ThemeMode.system,
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen(),
-        '/home': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-          return HomeScreen(
-            userName: 'User',
-            hasRentedLocker: args?['hasRentedLocker'] ?? true,
-            lockerId: args?['lockerId'],
-            otp: args?['otp'],
-            location: args?['location'],
-            rentalEndTime: args?['rentalEndTime'],
-            totalRentalDuration: args?['totalRentalDuration'],
-          );
+        themeMode: ThemeMode.system,
+        initialRoute: '/login',
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/signup': (context) => const SignupScreen(),
+          '/home': (context) => const HomeScreen(),
+          '/locker': (context) => const LockerScreen(),
         },
-        '/locker': (context) => const LockerScreen(),
-      },
+      ),
     );
   }
 }
