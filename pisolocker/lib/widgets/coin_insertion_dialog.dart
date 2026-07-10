@@ -301,12 +301,17 @@ class _CoinInsertionDialogState extends State<CoinInsertionDialog>
                   child: FilledButton.icon(
                     onPressed: _coinsInserted == 0 || _isTimedOut
                         ? null
-                        : () {
+                        : () async {
+                            // Pop the dialog first before calling onConfirm
+                            // This prevents navigation stack issues
+                            Navigator.of(context).pop();
+                            // Wait a brief moment to ensure dialog is fully dismissed
+                            await Future.delayed(const Duration(milliseconds: 100));
+                            // Now call the confirmation callback
                             widget.onConfirm(
                               _coinsInserted,
                               totalDuration,
                             );
-                            Navigator.of(context).pop();
                           },
                     icon: const Icon(Icons.check),
                     label: Text('Confirm ($_coinsInserted Piso)'),
