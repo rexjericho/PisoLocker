@@ -25,7 +25,6 @@ class _CoinInsertionDialogState extends State<CoinInsertionDialog> {
   
   static const int secondsPerPiso = 20 * 60; // 20 minutes per Piso
   
-  late TickerProviderStateMixin _tickerProvider;
   late AnimationController _timerController;
 
   @override
