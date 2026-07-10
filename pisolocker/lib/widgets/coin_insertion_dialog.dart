@@ -18,7 +18,8 @@ class CoinInsertionDialog extends StatefulWidget {
   State<CoinInsertionDialog> createState() => _CoinInsertionDialogState();
 }
 
-class _CoinInsertionDialogState extends State<CoinInsertionDialog> {
+class _CoinInsertionDialogState extends State<CoinInsertionDialog>
+    with SingleTickerProviderStateMixin {
   int _coinsInserted = 0;
   int _timeRemaining = 300; // 5 minutes in seconds
   bool _isTimedOut = false;
