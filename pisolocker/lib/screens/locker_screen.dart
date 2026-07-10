@@ -16,33 +16,34 @@ class LockerScreen extends StatefulWidget {
 }
 
 class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMixin {
-  // List of lockers - easily extensible
-  final List<Locker> _lockers = [
-    const Locker(
-      id: 'L-001',
-      name: 'Locker 1',
-      isAvailable: true,
-      isOccupied: false,
-      location: 'Ground Floor - Near Entrance',
-    ),
-    const Locker(
-      id: 'L-002',
-      name: 'Locker 2',
-      isAvailable: true,
-      isOccupied: false,
-      location: 'Ground Floor - Near Entrance',
-    ),
-    // Add more lockers here as needed
-    // const Locker(
-    //   id: 'L-003',
-    //   name: 'Locker 3',
-    //   isAvailable: true,
-    //   isOccupied: false,
-    //   location: 'Second Floor - Near Elevator',
-    // ),
-  ];
-
   int _selectedIndex = 1; // Rent Locker tab selected
+  
+  List<Locker> _getLockers(LockerProvider provider) {
+    return [
+      Locker(
+        id: 'L-001',
+        name: 'Locker 1',
+        isAvailable: !provider.isLockerRented('L-001'),
+        isOccupied: provider.isLockerRented('L-001'),
+        location: 'Ground Floor - Near Entrance',
+        currentBalance: provider.isLockerRented('L-001') ? 1.0 : null,
+        remainingTime: provider.isRentalActive() && provider.rentedLockerId == 'L-001' 
+            ? provider.rentalEndTime?.difference(DateTime.now()) ?? Duration.zero 
+            : null,
+      ),
+      Locker(
+        id: 'L-002',
+        name: 'Locker 2',
+        isAvailable: !provider.isLockerRented('L-002'),
+        isOccupied: provider.isLockerRented('L-002'),
+        location: 'Ground Floor - Near Entrance',
+        currentBalance: provider.isLockerRented('L-002') ? 1.0 : null,
+        remainingTime: provider.isRentalActive() && provider.rentedLockerId == 'L-002' 
+            ? provider.rentalEndTime?.difference(DateTime.now()) ?? Duration.zero 
+            : null,
+      ),
+    ];
+  }
 
   void _onBottomNavTap(int index) {
     setState(() {
@@ -92,19 +93,6 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
       
       // Calculate rental end time
       final rentalEndTime = DateTime.now().add(time);
-      
-      // Update locker status (in real app, this would come from backend/IoT)
-      setState(() {
-        final index = _lockers.indexWhere((l) => l.id == locker.id);
-        if (index != -1) {
-          _lockers[index] = locker.copyWith(
-            isAvailable: false,
-            isOccupied: true,
-            currentBalance: coins.toDouble(),
-            remainingTime: time,
-          );
-        }
-      });
       
       // Update provider with rental data
       provider.rentLocker(
@@ -260,8 +248,9 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<LockerProvider>(context);
-    final availableCount = _lockers.where((l) => l.isAvailable && !l.isOccupied).length;
-    final occupiedCount = _lockers.length - availableCount;
+    final lockers = _getLockers(provider);
+    final availableCount = lockers.where((l) => l.isAvailable && !l.isOccupied).length;
+    final occupiedCount = lockers.length - availableCount;
 
     return Scaffold(
       appBar: AppBar(
@@ -407,9 +396,9 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _lockers.length,
+                itemCount: lockers.length,
                 itemBuilder: (context, index) {
-                  final locker = _lockers[index];
+                  final locker = lockers[index];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: LockerCard(
