@@ -86,6 +86,9 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
         ),
       );
       
+      // Calculate rental end time
+      final rentalEndTime = DateTime.now().add(time);
+      
       // Update locker status (in real app, this would come from backend/IoT)
       setState(() {
         final index = _lockers.indexWhere((l) => l.id == locker.id);
@@ -98,6 +101,20 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
           );
         }
       });
+      
+      // Navigate to home screen with rental data
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/home',
+        (route) => false,
+        arguments: {
+          'hasRentedLocker': true,
+          'lockerId': locker.id,
+          'otp': '837492', // Generate or fetch actual OTP
+          'location': locker.location,
+          'rentalEndTime': rentalEndTime,
+          'totalRentalDuration': time,
+        },
+      );
     }
   }
 

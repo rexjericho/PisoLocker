@@ -37,7 +37,18 @@ class MainApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
-        '/home': (context) => HomeScreen(userName: 'User', hasRentedLocker: true),
+        '/home': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          return HomeScreen(
+            userName: 'User',
+            hasRentedLocker: args?['hasRentedLocker'] ?? true,
+            lockerId: args?['lockerId'],
+            otp: args?['otp'],
+            location: args?['location'],
+            rentalEndTime: args?['rentalEndTime'],
+            totalRentalDuration: args?['totalRentalDuration'],
+          );
+        },
         '/locker': (context) => const LockerScreen(),
       },
     );
