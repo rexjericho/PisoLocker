@@ -54,6 +54,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     setState(() {
       _selectedIndex = index;
     });
+    
+    // Navigate based on selection
+    if (index == 1) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/locker', (route) => false);
+    }
+    // Add more navigation logic for other tabs (FAQ, Profile) as needed
   }
 
   Future<void> _handleLock() async {
