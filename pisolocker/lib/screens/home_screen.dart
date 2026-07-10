@@ -3,8 +3,22 @@ import 'package:flutter/material.dart';
 class HomeScreen extends StatefulWidget {
   final String? userName;
   final bool hasRentedLocker;
+  final String? lockerId;
+  final String? otp;
+  final String? location;
+  final DateTime? rentalEndTime;
+  final Duration? totalRentalDuration;
 
-  const HomeScreen({super.key, this.userName, this.hasRentedLocker = true});
+  const HomeScreen({
+    super.key, 
+    this.userName, 
+    this.hasRentedLocker = true,
+    this.lockerId,
+    this.otp,
+    this.location,
+    this.rentalEndTime,
+    this.totalRentalDuration,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -12,10 +26,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _selectedIndex = 0;
-  final String _lockerId = 'L-2047';
-  final String _otp = '837492';
-  final Duration _rentalDuration = const Duration(hours: 2);
-  DateTime? _rentalStartTime;
   late AnimationController _lockAnimationController;
   late AnimationController _unlockAnimationController;
   late Animation<double> _lockScaleAnimation;
@@ -26,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _rentalStartTime = DateTime.now();
 
     // Lock button animation
     _lockAnimationController = AnimationController(
@@ -273,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               // Locker ID Label (smaller)
               _buildInfoCard(
                 label: 'Locker ID',
-                value: _lockerId,
+                value: widget.lockerId ?? 'N/A',
                 icon: Icons.storage,
                 isSmall: true,
               ),
@@ -281,14 +290,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               // OTP Label (smaller)
               _buildInfoCard(
                 label: 'Your OTP',
-                value: _otp,
+                value: widget.otp ?? 'N/A',
                 icon: Icons.password,
                 isOtp: true,
                 isSmall: true,
               ),
               const SizedBox(height: 16),
+              // Location Label
+              _buildInfoCard(
+                label: 'Location',
+                value: widget.location ?? 'N/A',
+                icon: Icons.location_on,
+                isSmall: true,
+              ),
+              const SizedBox(height: 16),
               // Time Remaining Label
               _buildTimeRemainingCard(),
+              const SizedBox(height: 16),
+              // Rental Expiration Time Label
+              _buildExpirationTimeCard(),
               const SizedBox(height: 32),
               // Lock Button
               AnimatedBuilder(
@@ -650,10 +670,211 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Duration _calculateTimeRemaining() {
-    if (_rentalStartTime == null) return Duration.zero;
-    final elapsed = DateTime.now().difference(_rentalStartTime!);
-    final remaining = _rentalDuration - elapsed;
+    if (widget.rentalEndTime == null) return Duration.zero;
+    final remaining = widget.rentalEndTime!.difference(DateTime.now());
     return remaining.isNegative ? Duration.zero : remaining;
+  }
+
+  Widget _buildExpirationTimeCard() {
+    return StreamBuilder(
+      stream: Stream.periodic(const Duration(seconds: 1)),
+      builder: (context, snapshot) {
+        final expirationTime = widget.rentalEndTime;
+        final currentTime = DateTime.now();
+        
+        if (expirationTime == null) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.event,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Rental Expires At',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'N/A',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final isExpired = expirationTime.isBefore(currentTime);
+        final statusColor = isExpired 
+            ? Theme.of(context).colorScheme.error 
+            : Theme.of(context).colorScheme.primary;
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                statusColor.withValues(alpha: 0.2),
+                statusColor.withValues(alpha: 0.1),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: statusColor,
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.event,
+                    size: 20,
+                    color: statusColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Rental Expires At',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: statusColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Exact Time',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _formatTime(expirationTime),
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: statusColor,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 50,
+                    color: statusColor.withValues(alpha: 0.3),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Current Time',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _formatTime(currentTime),
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (isExpired) ...[
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Rental time has expired!',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatTime(DateTime time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    final second = time.second.toString().padLeft(2, '0');
+    return '$hour:$minute:$second';
   }
 
   void _showActionDialog(BuildContext context, String title, String message) {
