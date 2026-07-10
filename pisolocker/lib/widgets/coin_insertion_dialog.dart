@@ -40,25 +40,21 @@ class _CoinInsertionDialogState extends State<CoinInsertionDialog>
       duration: const Duration(seconds: 1),
     );
 
-    _timerController.addListener(() {
+    // Timer ticks every second, decrementing the counter
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted) return false;
+      
       if (_timeRemaining > 0 && !_isTimedOut) {
         setState(() {
           _timeRemaining--;
         });
+        return true;
       } else if (_timeRemaining <= 0 && !_isTimedOut) {
         setState(() {
           _isTimedOut = true;
         });
-        _timerController.dispose();
-      }
-    });
-
-    // Timer ticks every second
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted && _timeRemaining > 0 && !_isTimedOut) {
-        _timerController.forward(from: 0);
-        return true;
+        return false;
       }
       return false;
     });
