@@ -2,44 +2,15 @@
 # Dependencies
 .dart_tool/
 .build/
-
 # Logs and temp files
 *.log
 *.tmp
 *.swp
-
 # Environment
 .env
 .env.local
-*.env.*
-
+.env.*
 # Editors
 .vscode/
 .idea/
-*.iml
-*.ipr
-*.iws
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Coverage reports
-coverage/
-htmlcov/
-
-# Distribution / packaging
-*.tar.gz
-*.zip
-*.tar
-*.gz
-
-# Debug files
-*.stackdump
-*.core
-
-# Flutter/Dart specific
-.pub-cache/
-flutter/
-bin/cache/
 ```
