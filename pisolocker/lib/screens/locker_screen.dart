@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/locker.dart';
 import '../widgets/locker_card.dart';
 import '../widgets/coin_insertion_dialog.dart';
+import '../providers/locker_provider.dart';
 
 /// Locker Screen - Monitor available lockers and rent them
 /// Users can view all lockers, see their status, and rent available ones
@@ -70,6 +72,8 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
   }
 
   void _processRental(Locker locker, int coins, Duration time) {
+    final provider = Provider.of<LockerProvider>(context, listen: false);
+    
     // TODO: Integrate with IoT hardware to:
     // 1. Verify coin insertion via hardware sensor
     // 2. Lock the locker
@@ -102,19 +106,17 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
         }
       });
       
-      // Navigate to home screen with rental data
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/home',
-        (route) => false,
-        arguments: {
-          'hasRentedLocker': true,
-          'lockerId': locker.id,
-          'otp': '837492', // Generate or fetch actual OTP
-          'location': locker.location,
-          'rentalEndTime': rentalEndTime,
-          'totalRentalDuration': time,
-        },
+      // Update provider with rental data
+      provider.rentLocker(
+        lockerId: locker.id,
+        otp: '837492', // Generate or fetch actual OTP
+        location: locker.location ?? 'Unknown',
+        rentalEndTime: rentalEndTime,
+        totalRentalDuration: time,
       );
+      
+      // Navigate to home screen
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
     }
   }
 
@@ -257,6 +259,7 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<LockerProvider>(context);
     final availableCount = _lockers.where((l) => l.isAvailable && !l.isOccupied).length;
     final occupiedCount = _lockers.length - availableCount;
 
