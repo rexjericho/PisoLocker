@@ -667,6 +667,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Duration _calculateTimeRemaining() {
+    final provider = Provider.of<LockerProvider>(context, listen: false);
     if (provider.rentalEndTime == null) return Duration.zero;
     final remaining = provider.rentalEndTime!.difference(DateTime.now());
     return remaining.isNegative ? Duration.zero : remaining;
@@ -676,6 +677,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return StreamBuilder(
       stream: Stream.periodic(const Duration(seconds: 1)),
       builder: (context, snapshot) {
+        final provider = Provider.of<LockerProvider>(context, listen: false);
         final expirationTime = provider.rentalEndTime;
         final currentTime = DateTime.now();
         
