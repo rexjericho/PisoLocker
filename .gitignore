@@ -1,56 +1,47 @@
-```
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-dist/
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+pubspec.lock
 build/
-*.class
-*.exe
-*.dll
-*.so
-*.a
-*.out
 
-# Dependencies
-.venv/
-venv/
-node_modules/
-.julia/
-zig*/
-target/
-.gradle/
-
-# Logs and temp files
-*.log
-*.tmp
+# IDE
+.vscode/
+.idea/
 *.swp
 *.swo
 
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
+# Logs
+*.log
+*.tmp
 
-# System files
-.DS_Store
-Thumbs.db
+# Dependencies
+node_modules/
+vendor/bundle/
+Pods/
 
-# Testing and coverage
-.coverage
-coverage/
-htmlcov/
-.mypy_cache/
-.pytest_cache/
+# Build outputs
+dist/
+target/
+.gradle/
+.cargo/target/
 
-# Compressed files
+# Python (if mixed project)
+__pycache__/
+*.pyc
+*.pyo
+.Python
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Compression
 *.zip
 *.gz
 *.tar
@@ -73,4 +64,3 @@ htmlcov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-```

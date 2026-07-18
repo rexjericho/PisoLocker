@@ -54,11 +54,8 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
       return;
     } else if (index == 2 && _selectedIndex != 2) {
       Navigator.of(context).pushNamedAndRemoveUntil('/faq', (route) => false);
-    } else if (index == 3) {
-      // Profile - not implemented yet
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile screen coming soon!')),
-      );
+    } else if (index == 3 && _selectedIndex != 3) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/profile', (route) => false);
     }
     
     setState(() {
