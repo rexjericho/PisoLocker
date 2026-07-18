@@ -40,6 +40,40 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 3, // Profile is index 3
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+          } else if (index == 1) {
+            Navigator.pushNamedAndRemoveUntil(context, '/locker', (route) => false);
+          } else if (index == 2) {
+            Navigator.pushNamedAndRemoveUntil(context, '/faq', (route) => false);
+          }
+          // index 3 is current screen, do nothing
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.lock),
+            label: 'Locker',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.help),
+            label: 'FAQ',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
     );
   }
 
@@ -81,13 +115,29 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildCreditScoreCard(BuildContext context) {
+    // Calculate color based on score (0-100 scale)
+    int score = 85;
+    Color scoreColor;
+    String status;
+    
+    if (score < 70) {
+      scoreColor = Colors.red[800]!;
+      status = 'Bad';
+    } else if (score < 85) {
+      scoreColor = Colors.orange[800]!;
+      status = 'Fair';
+    } else {
+      scoreColor = Colors.green[800]!;
+      status = 'Good';
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.secondary,
+            scoreColor,
+            scoreColor.withOpacity(0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -95,7 +145,7 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: scoreColor.withOpacity(0.4),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -115,19 +165,19 @@ class ProfileScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Column(
+              Column(
                 children: [
                   Text(
-                    '850',
-                    style: TextStyle(
+                    '$score',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 48,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    'Excellent',
-                    style: TextStyle(
+                    status,
+                    style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 16,
                     ),
@@ -150,7 +200,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'Top User',
+                      'Max: 100',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -164,16 +214,18 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           LinearProgressIndicator(
-            value: 0.85,
+            value: score / 100,
             backgroundColor: Colors.white30,
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
             minHeight: 8,
             borderRadius: BorderRadius.circular(4),
           ),
           const SizedBox(height: 8),
-          const Text(
-            '85/100 points to next level',
-            style: TextStyle(
+          Text(
+            score < 70 
+              ? 'Improve your score by using lockers responsibly'
+              : '${100 - score}/100 points to perfect score',
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 14,
             ),
@@ -325,23 +377,6 @@ class ProfileScreen extends StatelessWidget {
             },
             icon: const Icon(Icons.edit),
             label: const Text('Edit Profile'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () {
-              // TODO: Navigate to settings
-            },
-            icon: const Icon(Icons.settings),
-            label: const Text('Settings'),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
