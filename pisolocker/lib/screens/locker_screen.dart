@@ -318,14 +318,13 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
                     fontSize: 20,
                   ),
                 ),
-                if (provider.userName.isNotEmpty)
-                  Text(
-                    'Welcome, ${provider.userName}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                const Text(
+                  'Locker Management',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
                   ),
+                ),
               ],
             ),
           ],
@@ -333,7 +332,7 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: Icon(Icons.logout, color: Theme.of(context).colorScheme.onSurface),
             tooltip: 'Sign Out',
             onPressed: () {
               _showSignOutDialog(context);

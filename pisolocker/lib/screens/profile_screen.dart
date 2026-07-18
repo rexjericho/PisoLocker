@@ -81,9 +81,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red),
-            onPressed: () => _showProfileSignOutDialog(context),
+            icon: Icon(Icons.logout, color: Theme.of(context).colorScheme.onSurface),
             tooltip: 'Sign Out',
+            onPressed: () => _showProfileSignOutDialog(context),
           ),
         ],
       ),
