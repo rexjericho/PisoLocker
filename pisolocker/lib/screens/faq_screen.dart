@@ -268,7 +268,7 @@ class _FAQScreenState extends State<FAQScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: Icon(Icons.logout, color: Theme.of(context).colorScheme.onSurface),
             tooltip: 'Sign Out',
             onPressed: () {
               _showSignOutDialog(context);
