@@ -286,7 +286,7 @@ class _FAQScreenState extends State<FAQScreen> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            ...faqItems.map((item) => _buildFAQItem(item)).toList(),
+            ...faqItems.map((item) => _buildFAQItem(item)),
             const SizedBox(height: 32),
             const Divider(),
             const SizedBox(height: 16),
