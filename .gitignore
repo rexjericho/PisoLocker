@@ -1,47 +1,47 @@
-# Flutter/Dart
-.dart_tool/
-.packages
-.pub-cache/
-pubspec.lock
-build/
+```
+# Build artifacts
+*.class
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
-# IDE
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+target/
+.gradle/
+
+# Editor/IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
-# Environment
+# System files
+.DS_Store
+Thumbs.db
 .env
 .env.local
 *.env.*
 
 # Logs
 *.log
-*.tmp
 
-# Dependencies
-node_modules/
-vendor/bundle/
-Pods/
+# Coverage
+coverage/
+htmlcov/
+.coverage
 
-# Build outputs
-dist/
-target/
-.gradle/
-.cargo/target/
-
-# Python (if mixed project)
-__pycache__/
-*.pyc
-*.pyo
-.Python
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Compression
+# Compressed files
 *.zip
 *.gz
 *.tar
@@ -64,3 +64,4 @@ pip-delete-this-directory.txt
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+```
