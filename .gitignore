@@ -18,7 +18,7 @@ build/
 target/
 .gradle/
 
-# IDE files
+# Editor/IDE files
 .vscode/
 .idea/
 *.swp
@@ -59,4 +59,8 @@ htmlcov/
 *.Z
 *.lz
 *.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```
