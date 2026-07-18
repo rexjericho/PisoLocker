@@ -4,6 +4,7 @@ import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/locker_screen.dart';
+import 'screens/faq_screen.dart';
 import 'providers/locker_provider.dart';
 
 void main() {
@@ -45,6 +46,7 @@ class MainApp extends StatelessWidget {
           '/signup': (context) => const SignupScreen(),
           '/home': (context) => const HomeScreen(),
           '/locker': (context) => const LockerScreen(),
+          '/faq': (context) => const FAQScreen(),
         },
       ),
     );
