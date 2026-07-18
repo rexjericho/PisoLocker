@@ -79,16 +79,16 @@ class _FAQScreenState extends State<FAQScreen> with TickerProviderStateMixin {
 
   Future<void> _pickImages(ImageSource source) async {
     try {
-      final List<XFile> pickedFiles = await _picker.pickMultiImage(
+      final XFile? pickedFile = await _picker.pickImage(
         source: source,
         maxWidth: 1800,
         maxHeight: 1800,
         imageQuality: 85,
       );
       
-      if (pickedFiles != null) {
+      if (pickedFile != null) {
         setState(() {
-          _selectedImages.addAll(pickedFiles);
+          _selectedImages.add(pickedFile);
         });
       }
     } catch (e) {
