@@ -46,15 +46,24 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
   }
 
   void _onBottomNavTap(int index) {
+    // Navigate based on selection
+    if (index == 0 && _selectedIndex != 0) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+    } else if (index == 1 && _selectedIndex != 1) {
+      // Already on locker screen, do nothing
+      return;
+    } else if (index == 2 && _selectedIndex != 2) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/faq', (route) => false);
+    } else if (index == 3) {
+      // Profile - not implemented yet
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile screen coming soon!')),
+      );
+    }
+    
     setState(() {
       _selectedIndex = index;
     });
-    
-    // Navigate based on selection
-    if (index == 0) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-    }
-    // Add more navigation logic for other tabs
   }
 
   void _handleRentLocker(Locker locker) {
