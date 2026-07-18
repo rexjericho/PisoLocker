@@ -3,17 +3,43 @@ import 'package:flutter/material.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  void _showSignOutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              },
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 2,
         title: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Logo placeholder - replace with your actual logo asset
             Container(
-              width: 40,
-              height: 40,
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(8),
@@ -21,7 +47,7 @@ class ProfileScreen extends StatelessWidget {
               child: Icon(
                 Icons.lock_outline,
                 color: Theme.of(context).colorScheme.onPrimary,
-                size: 24,
+                size: 20,
               ),
             ),
             const SizedBox(width: 12),
@@ -29,32 +55,30 @@ class ProfileScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'PisoLocker',
                   style: TextStyle(
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                const Text(
-                  'Profile',
+                Text(
+                  'Welcome, Student',
                   style: TextStyle(
                     fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ],
         ),
-        centerTitle: false,
-        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.red),
+            onPressed: () => _showSignOutDialog(context),
             tooltip: 'Sign Out',
-            onPressed: () {
-              _showSignOutDialog(context);
-            },
           ),
         ],
       ),

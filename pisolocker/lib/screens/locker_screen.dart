@@ -18,6 +18,33 @@ class LockerScreen extends StatefulWidget {
 class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMixin {
   int _selectedIndex = 1; // Rent Locker tab selected
   
+  void _showSignOutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              },
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   List<Locker> _getLockers(LockerProvider provider) {
     return [
       Locker(
@@ -260,12 +287,12 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 2,
         title: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(8),
@@ -273,21 +300,40 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
               child: Icon(
                 Icons.lock_outline,
                 color: Theme.of(context).colorScheme.onPrimary,
-                size: 24,
+                size: 20,
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'PisoLocker',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'PisoLocker',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                Text(
+                  'Locker Management',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        centerTitle: false,
-        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.red),
+            onPressed: () => _showSignOutDialog(context),
+            tooltip: 'Sign Out',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
