@@ -32,10 +32,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return linux;
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -70,6 +67,16 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyAYkhh7D_euVjosIKoExiAU6BqdTM8AHHQ',
+    appId: '1:63210026230:web:10da97033d54a99b5828d7',
+    messagingSenderId: '63210026230',
+    projectId: 'pisolocker',
+    authDomain: 'pisolocker.firebaseapp.com',
+    storageBucket: 'pisolocker.firebasestorage.app',
+    measurementId: 'G-Y7ZCQTRSXM',
+  );
+
+  static const FirebaseOptions linux = FirebaseOptions(
     apiKey: 'AIzaSyAYkhh7D_euVjosIKoExiAU6BqdTM8AHHQ',
     appId: '1:63210026230:web:10da97033d54a99b5828d7',
     messagingSenderId: '63210026230',
