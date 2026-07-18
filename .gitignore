@@ -1,44 +1,79 @@
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.so
+*.dll
+*.exe
+*.out
+
 # Dependencies
-.dart_tool/
-.build/
-.packages
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-
-# Environment
+node_modules/
+venv/
+.venv/
 .env
 .env.local
-*.env.*
+.env.*
 
-# Editors
-.vscode/
-.idea/
-*.iml
-*.ipr
+# Build directories
+dist/
+build/
+target/
+.gradle/
+
+# Python specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+
+# Dart/Flutter specific
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
 *.iws
-
-# OS generated files
+*.ipr
+*.iml
+.idea/
+*.swp
+*~
 .DS_Store
 Thumbs.db
 
-# Coverage
-coverage/
-lcov.info
+# Logs
+*.log
 
-# Build runner
-lib/**
-*.g.dart
-
-# Flutter
-**/ios/Flutter/.last_build_id
-flutter_export_environment.sh
-
-# Pub cache
-.pub-cache/
-
-# Temporary directories
-tmp/
-temp/
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+```
