@@ -7,9 +7,56 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
-        centerTitle: true,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Logo placeholder - replace with your actual logo asset
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.lock_outline,
+                color: Theme.of(context).colorScheme.onPrimary,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'PisoLocker',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                const Text(
+                  'Profile',
+                  style: TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        centerTitle: false,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign Out',
+            onPressed: () {
+              _showSignOutDialog(context);
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -40,12 +87,9 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 3, // Profile is index 3
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 3, // Profile is index 3
+        onDestinationSelected: (index) {
           if (index == 0) {
             Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
           } else if (index == 1) {
@@ -55,25 +99,56 @@ class ProfileScreen extends StatelessWidget {
           }
           // index 3 is current screen, do nothing
         },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.lock),
-            label: 'Locker',
+          NavigationDestination(
+            icon: Icon(Icons.storage_outlined),
+            selectedIcon: Icon(Icons.storage),
+            label: 'Rent Locker',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.help),
+          NavigationDestination(
+            icon: Icon(Icons.help_outline),
+            selectedIcon: Icon(Icons.help),
             label: 'FAQ',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],
       ),
+    );
+  }
+
+  void _showSignOutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Sign Out'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              },
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
     );
   }
 
