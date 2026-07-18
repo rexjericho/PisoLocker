@@ -290,9 +290,12 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 2,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
+            // Logo placeholder - replace with your actual logo asset
             Container(
-              padding: const EdgeInsets.all(8),
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 borderRadius: BorderRadius.circular(8),
@@ -300,7 +303,7 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
               child: Icon(
                 Icons.lock_outline,
                 color: Theme.of(context).colorScheme.onPrimary,
-                size: 20,
+                size: 24,
               ),
             ),
             const SizedBox(width: 12),
@@ -308,30 +311,33 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                const Text(
                   'PisoLocker',
                   style: TextStyle(
-                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 20,
                   ),
                 ),
-                Text(
-                  'Locker Management',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                if (provider.userName.isNotEmpty)
+                  Text(
+                    'Welcome, ${provider.userName}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
               ],
             ),
           ],
         ),
+        centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red),
-            onPressed: () => _showSignOutDialog(context),
+            icon: const Icon(Icons.logout),
             tooltip: 'Sign Out',
+            onPressed: () {
+              _showSignOutDialog(context);
+            },
           ),
         ],
       ),
