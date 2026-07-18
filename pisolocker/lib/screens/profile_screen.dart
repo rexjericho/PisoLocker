@@ -16,23 +16,23 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             // Profile Header with Avatar and Name
-            _buildProfileHeader(),
+            _buildProfileHeader(context),
             const SizedBox(height: 24),
             
             // Credit Score Card
-            _buildCreditScoreCard(),
+            _buildCreditScoreCard(context),
             const SizedBox(height: 24),
             
             // Personal Information Section
             _buildSectionTitle('Personal Information'),
             const SizedBox(height: 12),
-            _buildPersonalInfoCard(),
+            _buildPersonalInfoCard(context),
             const SizedBox(height: 24),
             
             // Account Information Section
             _buildSectionTitle('Account Information'),
             const SizedBox(height: 12),
-            _buildAccountInfoCard(),
+            _buildAccountInfoCard(context),
             const SizedBox(height: 24),
             
             // Action Buttons
@@ -43,7 +43,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(BuildContext context) {
     return Column(
       children: [
         Container(
@@ -80,7 +80,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCreditScoreCard() {
+  Widget _buildCreditScoreCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -196,7 +196,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPersonalInfoCard() {
+  Widget _buildPersonalInfoCard(BuildContext context) {
     return Card(
       elevation: 2,
       shadowColor: Colors.black12,
@@ -207,24 +207,24 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildInfoRow(Icons.school, 'Student ID', '2024-00123'),
+            _buildInfoRow(Icons.school, 'Student ID', '2024-00123', context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.email, 'Email', 'juan.delacruz@university.edu'),
+            _buildInfoRow(Icons.email, 'Email', 'juan.delacruz@university.edu', context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.phone, 'Phone', '+63 912 345 6789'),
+            _buildInfoRow(Icons.phone, 'Phone', '+63 912 345 6789', context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.calendar_today, 'Birthday', 'January 15, 2003'),
+            _buildInfoRow(Icons.calendar_today, 'Birthday', 'January 15, 2003', context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.location_on, 'Address', '123 University St., City'),
+            _buildInfoRow(Icons.location_on, 'Address', '123 University St., City', context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.id_card, 'Department', 'Computer Science'),
+            _buildInfoRow(Icons.badge, 'Department', 'Computer Science', context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAccountInfoCard() {
+  Widget _buildAccountInfoCard(BuildContext context) {
     return Card(
       elevation: 2,
       shadowColor: Colors.black12,
@@ -235,20 +235,20 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildInfoRow(Icons.account_circle, 'Username', 'juandelacruz'),
+            _buildInfoRow(Icons.account_circle, 'Username', 'juandelacruz', context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.lock, 'Member Since', 'January 2024'),
+            _buildInfoRow(Icons.lock, 'Member Since', 'January 2024', context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.verified_user, 'Account Status', 'Active', statusColor: Colors.green),
+            _buildInfoRow(Icons.verified_user, 'Account Status', 'Active', context, statusColor: Colors.green),
             const Divider(height: 24),
-            _buildInfoRow(Icons.history, 'Last Login', 'Today, 10:30 AM'),
+            _buildInfoRow(Icons.history, 'Last Login', 'Today, 10:30 AM', context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, {Color? statusColor}) {
+  Widget _buildInfoRow(IconData icon, String label, String value, BuildContext context, {Color? statusColor}) {
     return Row(
       children: [
         Container(
