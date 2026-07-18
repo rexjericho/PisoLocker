@@ -60,21 +60,23 @@ class _FAQScreenState extends State<FAQScreen> with TickerProviderStateMixin {
   }
 
   void _onBottomNavTap(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    
     // Navigate based on selection
-    if (index == 0) {
+    if (index == 0 && _selectedIndex != 0) {
       Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-    } else if (index == 1) {
+    } else if (index == 1 && _selectedIndex != 1) {
       Navigator.of(context).pushNamedAndRemoveUntil('/locker', (route) => false);
+    } else if (index == 2 && _selectedIndex != 2) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/faq', (route) => false);
     } else if (index == 3) {
       // Profile - not implemented yet
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile screen coming soon!')),
       );
     }
+    
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   Future<void> _pickImages(ImageSource source) async {
