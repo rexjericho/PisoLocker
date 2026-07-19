@@ -18,23 +18,28 @@ class LockerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isAvailable = locker.isAvailable && !locker.isOccupied;
+    final isMaintenance = locker.isMaintenance;
 
     return Card(
       elevation: 2,
       shadowColor: isAvailable 
           ? theme.colorScheme.primary.withValues(alpha: 0.3)
-          : Colors.grey.withValues(alpha: 0.3),
+          : isMaintenance
+              ? Colors.orange.withValues(alpha: 0.3)
+              : Colors.grey.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
           color: isAvailable 
               ? theme.colorScheme.primary.withValues(alpha: 0.5)
-              : theme.colorScheme.outlineVariant,
+              : isMaintenance
+                  ? Colors.orange.withValues(alpha: 0.5)
+                  : theme.colorScheme.outlineVariant,
           width: isAvailable ? 2 : 1,
         ),
       ),
       child: InkWell(
-        onTap: isAvailable ? onViewDetailsTap : null,
+        onTap: isAvailable || isMaintenance ? null : onViewDetailsTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -52,14 +57,22 @@ class LockerCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: isAvailable 
                               ? theme.colorScheme.primaryContainer
-                              : theme.colorScheme.surfaceContainerHighest,
+                              : isMaintenance
+                                  ? Colors.orange.withValues(alpha: 0.2)
+                                  : theme.colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          isAvailable ? Icons.lock_open : Icons.lock,
+                          isAvailable 
+                              ? Icons.lock_open 
+                              : isMaintenance 
+                                  ? Icons.build 
+                                  : Icons.lock,
                           color: isAvailable 
                               ? theme.colorScheme.onPrimaryContainer
-                              : theme.colorScheme.onSurfaceVariant,
+                              : isMaintenance
+                                  ? Colors.orange.shade700
+                                  : theme.colorScheme.onSurfaceVariant,
                           size: 24,
                         ),
                       ),
@@ -83,7 +96,7 @@ class LockerCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  _buildStatusBadge(isAvailable, theme),
+                  _buildStatusBadge(isAvailable, isMaintenance, theme),
                 ],
               ),
 
@@ -111,7 +124,7 @@ class LockerCard extends StatelessWidget {
               ],
 
               // Current rental info (if occupied)
-              if (!isAvailable && locker.remainingTime != null) ...[
+              if (!isAvailable && !isMaintenance && locker.remainingTime != null) ...[
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -155,6 +168,22 @@ class LockerCard extends StatelessWidget {
                     ),
                   ),
                 )
+              else if (isMaintenance)
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: null, // Disabled during maintenance
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      foregroundColor: Colors.orange.shade700,
+                      side: BorderSide(color: Colors.orange.shade700),
+                    ),
+                    child: const Text('Under Maintenance'),
+                  ),
+                )
               else if (!isAvailable && locker.isOccupied)
                 SizedBox(
                   width: double.infinity,
@@ -176,21 +205,35 @@ class LockerCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(bool isAvailable, ThemeData theme) {
+  Widget _buildStatusBadge(bool isAvailable, bool isMaintenance, ThemeData theme) {
+    String statusText;
+    Color bgColor;
+    Color textColor;
+    
+    if (isMaintenance) {
+      statusText = 'Maintenance';
+      bgColor = Colors.orange.withValues(alpha: 0.2);
+      textColor = Colors.orange.shade700;
+    } else if (isAvailable) {
+      statusText = 'Available';
+      bgColor = theme.colorScheme.primaryContainer;
+      textColor = theme.colorScheme.onPrimaryContainer;
+    } else {
+      statusText = 'Occupied';
+      bgColor = theme.colorScheme.errorContainer;
+      textColor = theme.colorScheme.onErrorContainer;
+    }
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isAvailable 
-            ? theme.colorScheme.primaryContainer
-            : theme.colorScheme.errorContainer,
+        color: bgColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        isAvailable ? 'Available' : 'Occupied',
+        statusText,
         style: theme.textTheme.labelSmall?.copyWith(
-          color: isAvailable 
-              ? theme.colorScheme.onPrimaryContainer
-              : theme.colorScheme.onErrorContainer,
+          color: textColor,
           fontWeight: FontWeight.bold,
         ),
       ),
