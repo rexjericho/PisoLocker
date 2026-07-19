@@ -157,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   
   void _startEditing() {
     if (_userData != null) {
-      final data = _userData!.data() as Map<String, dynamic>?;
+      final data = _userData?.data() as Map<String, dynamic>?;
       _phoneNumberController.text = data?['phoneNumber'] ?? '';
       _studentIDController.text = data?['studentID'] ?? '';
       _addressController.text = data?['address'] ?? '';
@@ -537,7 +537,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildPersonalInfoCard(BuildContext context) {
-    if (_isLoading || _userData == null) {
+    if (_isLoading) {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(32),
@@ -546,7 +546,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    final data = _userData!.data() as Map<String, dynamic>?;
+    if (_userData == null || !_userData!.exists) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: Text('Profile data not found')),
+        ),
+      );
+    }
+
+    final data = _userData?.data() as Map<String, dynamic>?;
     if (data == null) {
       return const Card(
         child: Padding(
@@ -621,7 +630,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    final data = _userData!.data() as Map<String, dynamic>;
+    final data = _userData?.data() as Map<String, dynamic>;
     final username = data['username'] as String? ?? _currentUser?.email?.split('@').first ?? 'User';
     final memberSince = (data['memberSince'] as Timestamp?)?.toDate() ?? DateTime.now();
     final accountStatus = data['accountStatus'] as String? ?? 'Active';
