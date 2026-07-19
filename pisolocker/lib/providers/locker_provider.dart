@@ -108,62 +108,99 @@ class LockerProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final savedLockerId = prefs.getString(_activeLockerKey);
       
-      // If no saved locker ID, clear state and return
-      if (savedLockerId == null || _auth.currentUser == null) {
+      // If no saved locker ID or no current user, search Firestore for any active rentals
+      if (_auth.currentUser == null) {
         await clearActiveLocker();
         return;
       }
       
-      // Verify the locker is still rented by THIS user in Firestore
-      final lockerDoc = await FirebaseFirestore.instance
-          .collection('lockers')
-          .doc(savedLockerId)
-          .get();
-      
-      if (lockerDoc.exists) {
-        final data = lockerDoc.data() as Map<String, dynamic>;
-        final rentedBy = data['rentedBy'] as String?;
-        final status = data['status'] as String?;
+      // First, check if the saved locker ID belongs to the current user
+      if (savedLockerId != null) {
+        final lockerDoc = await FirebaseFirestore.instance
+            .collection('lockers')
+            .doc(savedLockerId)
+            .get();
         
-        // Critical check: Ensure the locker is rented by the CURRENT logged-in user
-        if (rentedBy == _auth.currentUser!.uid && status == 'Occupied') {
-          // Restore rental state for this user
-          _hasRentedLocker = true;
-          _lockerId = savedLockerId;
-          _otp = data['otp'] as String?;
-          _location = data['location'] as String?;
-          _rentedLockerId = savedLockerId;
+        if (lockerDoc.exists) {
+          final data = lockerDoc.data() as Map<String, dynamic>;
+          final rentedBy = data['rentedBy'] as String?;
+          final status = data['status'] as String?;
           
-          // Handle rental end time
-          final endTimeData = data['rentalEndTime'];
-          if (endTimeData is Timestamp) {
-            _rentalEndTime = endTimeData.toDate();
-            _rentedUntil = _rentalEndTime;
-            
-            // Calculate total duration based on remaining time
-            final now = DateTime.now();
-            if (_rentalEndTime!.isAfter(now)) {
-              _totalRentalDuration = _rentalEndTime!.difference(now);
-            } else {
-              // Rental expired, clean up
-              await clearActiveLocker();
-              return;
-            }
+          // Critical check: Ensure the locker is rented by the CURRENT logged-in user
+          if (rentedBy == _auth.currentUser!.uid && status == 'Occupied') {
+            // Restore rental state for this user
+            await _restoreRentalState(data, savedLockerId);
+            return;
           }
-          
-          notifyListeners();
-        } else {
-          // Locker is rented by a DIFFERENT user or not occupied - clear local state
-          // This prevents User B from seeing User A's rental
-          await clearActiveLocker();
         }
-      } else {
-        // Locker document doesn't exist, clear storage
-        await clearActiveLocker();
       }
+      
+      // If saved locker doesn't exist or doesn't belong to current user,
+      // search Firestore for any lockers rented by this user
+      await _findActiveRentalInFirestore();
+      
     } catch (e) {
       debugPrint('Error loading active locker from storage: $e');
       // On error, clear state to be safe
+      await clearActiveLocker();
+    }
+  }
+  
+  /// Restore rental state from Firestore data
+  Future<void> _restoreRentalState(Map<String, dynamic> data, String lockerId) async {
+    _hasRentedLocker = true;
+    _lockerId = lockerId;
+    _otp = data['otp'] as String?;
+    _location = data['location'] as String?;
+    _rentedLockerId = lockerId;
+    
+    // Handle rental end time
+    final endTimeData = data['rentalEndTime'];
+    if (endTimeData is Timestamp) {
+      _rentalEndTime = endTimeData.toDate();
+      _rentedUntil = _rentalEndTime;
+      
+      // Calculate total duration based on remaining time
+      final now = DateTime.now();
+      if (_rentalEndTime!.isAfter(now)) {
+        _totalRentalDuration = _rentalEndTime!.difference(now);
+      } else {
+        // Rental expired, clean up
+        await clearActiveLocker();
+        return;
+      }
+    }
+    
+    notifyListeners();
+  }
+  
+  /// Search Firestore for any active rentals by the current user
+  Future<void> _findActiveRentalInFirestore() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      await clearActiveLocker();
+      return;
+    }
+    
+    // Query for lockers rented by this user with Occupied status
+    final snapshot = await FirebaseFirestore.instance
+        .collection('lockers')
+        .where('rentedBy', isEqualTo: user.uid)
+        .where('status', isEqualTo: 'Occupied')
+        .limit(1)
+        .get();
+    
+    if (snapshot.docs.isNotEmpty) {
+      // Found an active rental for this user
+      final doc = snapshot.docs.first;
+      final data = doc.data();
+      await _restoreRentalState(data, doc.id);
+      
+      // Save this locker ID to local storage for next time
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_activeLockerKey, doc.id);
+    } else {
+      // No active rental found, clear storage
       await clearActiveLocker();
     }
   }
