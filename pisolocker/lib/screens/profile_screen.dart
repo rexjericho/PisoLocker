@@ -60,7 +60,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           setState(() {
             _userData = doc;
             final data = doc.data();
-            _profileImageUrl = data?['profilePictureUrl'] as String?;
+            if (data != null) {
+              _profileImageUrl = data['profilePictureUrl'] as String?;
+            }
             _isLoading = false;
           });
         }

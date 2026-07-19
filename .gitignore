@@ -3,23 +3,23 @@
 *.class
 *.o
 *.obj
-*.out
 *.exe
 *.dll
 *.so
 *.a
+*.out
+*.pyc
+__pycache__/
 
 # Dependencies
 node_modules/
 venv/
 .venv/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-target/
-.gradle/
+.env
+.env.local
+*.env.*
 
-# Editor/IDE files
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
@@ -29,9 +29,6 @@ target/
 # System files
 .DS_Store
 Thumbs.db
-.env
-.env.local
-*.env.*
 
 # Logs
 *.log
@@ -40,6 +37,16 @@ Thumbs.db
 coverage/
 htmlcov/
 .coverage
+
+# Distribution
+dist/
+build/
+target/
+.gradle/
+
+# Python cache
+.mypy_cache/
+.pytest_cache/
 
 # Compressed files
 *.zip
@@ -60,8 +67,4 @@ htmlcov/
 *.Z
 *.lz
 *.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
 ```
