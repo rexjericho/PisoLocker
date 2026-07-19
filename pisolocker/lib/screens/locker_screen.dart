@@ -46,30 +46,8 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
   }
 
   List<Locker> _getLockers(LockerProvider provider) {
-    return [
-      Locker(
-        id: 'L-001',
-        name: 'Locker 1',
-        isAvailable: !provider.isLockerRented('L-001'),
-        isOccupied: provider.isLockerRented('L-001'),
-        location: 'Ground Floor - Near Entrance',
-        currentBalance: provider.isLockerRented('L-001') ? 1.0 : null,
-        remainingTime: provider.isRentalActive() && provider.rentedLockerId == 'L-001' 
-            ? provider.rentalEndTime?.difference(DateTime.now()) ?? Duration.zero 
-            : null,
-      ),
-      Locker(
-        id: 'L-002',
-        name: 'Locker 2',
-        isAvailable: !provider.isLockerRented('L-002'),
-        isOccupied: provider.isLockerRented('L-002'),
-        location: 'Ground Floor - Near Entrance',
-        currentBalance: provider.isLockerRented('L-002') ? 1.0 : null,
-        remainingTime: provider.isRentalActive() && provider.rentedLockerId == 'L-002' 
-            ? provider.rentalEndTime?.difference(DateTime.now()) ?? Duration.zero 
-            : null,
-      ),
-    ];
+    // Use lockers from Firestore via provider
+    return provider.lockers;
   }
 
   void _onBottomNavTap(int index) {
@@ -105,39 +83,47 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
     );
   }
 
-  void _processRental(Locker locker, int coins, Duration time) {
+  void _processRental(Locker locker, int coins, Duration time) async {
     final provider = Provider.of<LockerProvider>(context, listen: false);
     
-    // TODO: Integrate with IoT hardware to:
-    // 1. Verify coin insertion via hardware sensor
-    // 2. Lock the locker
-    // 3. Start the timer
-    // 4. Update backend with rental information
+    // Generate OTP
+    final otp = (100000 + (DateTime.now().millisecondsSinceEpoch % 900000)).toString();
+    
+    // Calculate rental end time
+    final rentalEndTime = DateTime.now().add(time);
+    
+    // Rent the locker (this updates Firestore)
+    final success = await provider.rentLocker(
+      lockerId: locker.id,
+      otp: otp,
+      location: locker.location ?? 'Unknown',
+      rentalEndTime: rentalEndTime,
+      totalRentalDuration: time,
+    );
     
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Successfully rented ${locker.name} for $coins Piso (${_formatDuration(time)})'),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      
-      // Calculate rental end time
-      final rentalEndTime = DateTime.now().add(time);
-      
-      // Update provider with rental data
-      provider.rentLocker(
-        lockerId: locker.id,
-        otp: '837492', // Generate or fetch actual OTP
-        location: locker.location ?? 'Unknown',
-        rentalEndTime: rentalEndTime,
-        totalRentalDuration: time,
-      );
-      
-      // Navigate to home screen
-      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Successfully rented ${locker.name} for $coins Piso (${_formatDuration(time)})'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+        
+        // Navigate to home screen
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to rent locker. Please try again.'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
     }
   }
 
@@ -279,8 +265,39 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Load lockers from Firestore when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<LockerProvider>(context, listen: false);
+      provider.loadLockers();
+      provider.subscribeToLockers();
+    });
+  }
+
+  @override
+  void dispose() {
+    // Clean up subscription when screen is disposed
+    final provider = Provider.of<LockerProvider>(context, listen: false);
+    provider.unsubscribeFromLockers();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = Provider.of<LockerProvider>(context);
+    
+    // Show loading indicator while fetching lockers
+    if (provider.isLoading && provider.lockers.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          title: const Text('PisoLocker'),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    
     final lockers = _getLockers(provider);
     final availableCount = lockers.where((l) => l.isAvailable && !l.isOccupied).length;
     final occupiedCount = lockers.length - availableCount;
