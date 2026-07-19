@@ -66,9 +66,26 @@ class LockerService {
 
         final data = snapshot.data() as Map<String, dynamic>;
         final status = data['status'] as String;
+        final rentedBy = data['rentedBy'] as String?;
+        final endTimeData = data['rentalEndTime'] as Timestamp?;
 
+        // Check if locker is truly available or if it's an expired session
         if (status != 'Available') {
-          throw Exception('Locker is not available');
+          // If occupied, check if it's expired
+          if (endTimeData != null) {
+            final endTime = endTimeData.toDate();
+            if (endTime.isBefore(DateTime.now())) {
+              // Session expired - allow takeover and clean up old data
+              debugPrint('Taking over expired locker session: $lockerId');
+            } else {
+              // Still active and not by this user
+              if (rentedBy != userId) {
+                throw Exception('Locker is currently occupied by another user');
+              }
+            }
+          } else if (rentedBy != userId) {
+            throw Exception('Locker is not available');
+          }
         }
 
         // Update locker with rental info and OTP
@@ -77,7 +94,7 @@ class LockerService {
           'rentedBy': userId,
           'rentalEndTime': Timestamp.fromDate(rentalEndTime),
           'remainingTimeMinutes': duration.inMinutes,
-          'currentBalance': 0.0,
+          'currentBalance': (data['currentBalance'] as num? ?? 0.0) + 0.0,
           'otp': otp,
         });
       });
@@ -128,6 +145,36 @@ class LockerService {
     } catch (e) {
       debugPrint('Error releasing locker: $e');
       rethrow;
+    }
+  }
+
+  /// Check and release any expired locker sessions
+  Future<void> cleanupExpiredLockers() async {
+    try {
+      final now = Timestamp.now();
+      final snapshot = await _firestore
+          .collection(_collectionName)
+          .where('status', isEqualTo: 'Occupied')
+          .where('rentalEndTime', isLessThan: now)
+          .get();
+
+      for (final doc in snapshot.docs) {
+        debugPrint('Cleaning up expired locker: ${doc.id}');
+        await doc.reference.update({
+          'status': 'Available',
+          'rentedBy': FieldValue.delete(),
+          'rentalEndTime': FieldValue.delete(),
+          'remainingTimeMinutes': FieldValue.delete(),
+          'currentBalance': 0.0,
+          'otp': FieldValue.delete(),
+        });
+      }
+      
+      if (snapshot.docs.isNotEmpty) {
+        debugPrint('Cleaned up ${snapshot.docs.length} expired locker(s)');
+      }
+    } catch (e) {
+      debugPrint('Error cleaning up expired lockers: $e');
     }
   }
 
