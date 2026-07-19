@@ -200,18 +200,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     
     if (confirmed == true && mounted) {
-      // Get provider and end session if there's an active rental
-      final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
-      if (lockerProvider.hasRentedLocker) {
-        await lockerProvider.endSession();
-      }
-      // Clear local storage
-      await lockerProvider.clearActiveLocker();
-      // Sign out from Firebase Auth
-      await FirebaseAuth.instance.signOut();
-      // Navigate to login
-      if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext loadingContext) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      try {
+        // Get provider and end session if there's an active rental
+        final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
+        if (lockerProvider.hasRentedLocker) {
+          await lockerProvider.endSession();
+        }
+        // Clear local storage
+        await lockerProvider.clearActiveLocker();
+        // Sign out from Firebase Auth
+        await FirebaseAuth.instance.signOut();
+        
+        // Close loading dialog
+        if (mounted) {
+          Navigator.of(loadingContext, rootNavigator: true).pop();
+        }
+        
+        // Navigate to login
+        if (mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+        }
+      } catch (e) {
+        // Close loading dialog on error
+        if (mounted) {
+          Navigator.of(loadingContext, rootNavigator: true).pop();
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error signing out: $e')),
+          );
+        }
       }
     }
   }

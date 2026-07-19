@@ -976,37 +976,65 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void _showSignOutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Sign Out'),
           content: const Text('Are you sure you want to sign out?'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               child: const Text('Cancel'),
             ),
             FilledButton(
               onPressed: () async {
-                Navigator.of(context).pop();
-                // End session if there's an active rental
-                final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
-                if (lockerProvider.hasRentedLocker) {
-                  await lockerProvider.endSession();
-                }
-                // Clear local storage
-                await lockerProvider.clearActiveLocker();
-                // Sign out from Firebase Auth
-                await FirebaseAuth.instance.signOut();
-                // Navigate to login
-                if (mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                Navigator.of(dialogContext).pop();
+                
+                // Show loading indicator
+                showDialog(
+                  context: dialogContext,
+                  barrierDismissible: false,
+                  builder: (BuildContext loadingContext) => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+
+                try {
+                  // End session if there's an active rental
+                  final lockerProvider = Provider.of<LockerProvider>(dialogContext, listen: false);
+                  if (lockerProvider.hasRentedLocker) {
+                    await lockerProvider.endSession();
+                  }
+                  // Clear local storage
+                  await lockerProvider.clearActiveLocker();
+                  // Sign out from Firebase Auth
+                  await FirebaseAuth.instance.signOut();
+                  
+                  // Close loading dialog
+                  if (dialogContext.mounted) {
+                    Navigator.of(loadingContext, rootNavigator: true).pop();
+                  }
+                  
+                  // Navigate to login
+                  if (mounted) {
+                    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                  }
+                } catch (e) {
+                  // Close loading dialog on error
+                  if (dialogContext.mounted) {
+                    Navigator.of(loadingContext, rootNavigator: true).pop();
+                  }
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error signing out: $e')),
+                    );
+                  }
                 }
               },
               style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
+                backgroundColor: Theme.of(dialogContext).colorScheme.error,
+                foregroundColor: Theme.of(dialogContext).colorScheme.onError,
               ),
               child: const Text('Sign Out'),
             ),
