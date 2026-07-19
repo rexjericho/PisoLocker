@@ -87,23 +87,29 @@ class _SignupScreenState extends State<SignupScreen>
           password: _passwordController.text,
         );
 
-        // Add user data to Firestore 'users' collection
-        await _firestore.collection('user').doc(userCredential.user!.uid).set({
+        // Get the created user
+        final user = userCredential.user;
+        if (user == null) {
+          throw Exception('Failed to create user');
+        }
+
+        // Add user data to Firestore 'user' collection
+        // Use set with merge to avoid overwriting if document already exists
+        await _firestore.collection('user').doc(user.uid).set({
           'fullName': _fullNameController.text.trim(),
           'email': _emailController.text.trim(),
-          'password': _passwordController.text, // Note: In production, don't store plain passwords
           'role': 'user', // Default role
           'phoneNumber': '', // Empty for now
           'studentID': '', // Empty for now
           'address': '', // Empty for now
           'department': '', // Empty for now
           'username': _emailController.text.trim().split('@').first, // Use email prefix as username
-          'memberSince': Timestamp.now(),
-          'lastLogin': Timestamp.now(),
+          'memberSince': FieldValue.serverTimestamp(),
+          'lastLogin': FieldValue.serverTimestamp(),
           'accountStatus': 'active', // Default status
           'creditScore': 80,
-          'id': userCredential.user!.uid,
-        });
+          'id': user.uid,
+        }, SetOptions(merge: true));
 
         setState(() => _isLoading = false);
 
@@ -134,8 +140,34 @@ class _SignupScreenState extends State<SignupScreen>
           case 'invalid-email':
             errorMessage = 'The email address is not valid.';
             break;
+          case 'operation-not-allowed':
+            errorMessage = 'Email/password accounts are not enabled.';
+            break;
           default:
             errorMessage = e.message ?? 'An error occurred. Please try again.';
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        }
+      } on FirebaseException catch (e) {
+        // Handle Firestore-specific errors
+        setState(() => _isLoading = false);
+        String errorMessage;
+        if (e.code == 'permission-denied') {
+          errorMessage = 'Permission denied. Please check your Firestore security rules.';
+        } else if (e.code == 'unavailable') {
+          errorMessage = 'Database unavailable. Please check your internet connection.';
+        } else {
+          errorMessage = 'Database error: ${e.message ?? 'Please try again.'}';
         }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -154,7 +186,7 @@ class _SignupScreenState extends State<SignupScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('An error occurred. Please try again.'),
+              content: Text('An error occurred: ${e.toString()}'),
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
