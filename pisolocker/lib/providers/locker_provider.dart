@@ -108,55 +108,63 @@ class LockerProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final savedLockerId = prefs.getString(_activeLockerKey);
       
-      if (savedLockerId != null && _auth.currentUser != null) {
-        // Verify the locker is still rented by this user in Firestore
-        final lockerDoc = await FirebaseFirestore.instance
-            .collection('lockers')
-            .doc(savedLockerId)
-            .get();
+      // If no saved locker ID, clear state and return
+      if (savedLockerId == null || _auth.currentUser == null) {
+        await clearActiveLocker();
+        return;
+      }
+      
+      // Verify the locker is still rented by THIS user in Firestore
+      final lockerDoc = await FirebaseFirestore.instance
+          .collection('lockers')
+          .doc(savedLockerId)
+          .get();
+      
+      if (lockerDoc.exists) {
+        final data = lockerDoc.data() as Map<String, dynamic>;
+        final rentedBy = data['rentedBy'] as String?;
+        final status = data['status'] as String?;
         
-        if (lockerDoc.exists) {
-          final data = lockerDoc.data() as Map<String, dynamic>;
-          final rentedBy = data['rentedBy'] as String?;
-          final status = data['status'] as String?;
+        // Critical check: Ensure the locker is rented by the CURRENT logged-in user
+        if (rentedBy == _auth.currentUser!.uid && status == 'Occupied') {
+          // Restore rental state for this user
+          _hasRentedLocker = true;
+          _lockerId = savedLockerId;
+          _otp = data['otp'] as String?;
+          _location = data['location'] as String?;
+          _rentedLockerId = savedLockerId;
           
-          if (rentedBy == _auth.currentUser!.uid && status == 'Occupied') {
-            // Restore rental state
-            _hasRentedLocker = true;
-            _lockerId = savedLockerId;
-            _otp = data['otp'] as String?;
-            _location = data['location'] as String?;
-            _rentedLockerId = savedLockerId;
+          // Handle rental end time
+          final endTimeData = data['rentalEndTime'];
+          if (endTimeData is Timestamp) {
+            _rentalEndTime = endTimeData.toDate();
+            _rentedUntil = _rentalEndTime;
             
-            // Handle rental end time
-            final endTimeData = data['rentalEndTime'];
-            if (endTimeData is Timestamp) {
-              _rentalEndTime = endTimeData.toDate();
-              _rentedUntil = _rentalEndTime;
-              
-              // Calculate total duration based on remaining time
-              final now = DateTime.now();
-              if (_rentalEndTime!.isAfter(now)) {
-                _totalRentalDuration = _rentalEndTime!.difference(now);
-              } else {
-                // Rental expired, clean up
-                await clearActiveLocker();
-                return;
-              }
+            // Calculate total duration based on remaining time
+            final now = DateTime.now();
+            if (_rentalEndTime!.isAfter(now)) {
+              _totalRentalDuration = _rentalEndTime!.difference(now);
+            } else {
+              // Rental expired, clean up
+              await clearActiveLocker();
+              return;
             }
-            
-            notifyListeners();
-          } else {
-            // Locker no longer belongs to user, clear storage
-            await clearActiveLocker();
           }
+          
+          notifyListeners();
         } else {
-          // Locker document doesn't exist, clear storage
+          // Locker is rented by a DIFFERENT user or not occupied - clear local state
+          // This prevents User B from seeing User A's rental
           await clearActiveLocker();
         }
+      } else {
+        // Locker document doesn't exist, clear storage
+        await clearActiveLocker();
       }
     } catch (e) {
       debugPrint('Error loading active locker from storage: $e');
+      // On error, clear state to be safe
+      await clearActiveLocker();
     }
   }
 

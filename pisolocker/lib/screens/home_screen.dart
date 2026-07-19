@@ -26,12 +26,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     // Load active locker from storage and refresh UI
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<LockerProvider>(context, listen: false);
+      
+      // First clear any stale state from previous user sessions
       await provider.loadActiveLockerFromStorage();
+      
+      // Then load fresh locker data from Firestore
       await provider.loadLockers();
+      
+      // Subscribe to real-time updates
       provider.subscribeToLockers();
-      setState(() {
-        _isLoading = false;
-      });
+      
+      // Force a rebuild after loading is complete
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     });
 
     // Lock button animation
