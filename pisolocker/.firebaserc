@@ -1,6 +1,7 @@
 {
   "projects": {
-    "capstone": "pisolocker"
+    "capstone": "pisolocker",
+    "default": "pisolocker"
   },
   "targets": {},
   "etags": {}
