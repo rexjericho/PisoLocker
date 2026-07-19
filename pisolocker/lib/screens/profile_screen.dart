@@ -546,7 +546,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    final data = _userData!.data() as Map<String, dynamic>;
+    final data = _userData!.data() as Map<String, dynamic>?;
+    if (data == null) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: Text('Profile data not found')),
+        ),
+      );
+    }
+    
     final studentID = data['studentID'] as String? ?? 'Not set';
     final email = data['email'] as String? ?? _currentUser?.email ?? '';
     final phone = data['phoneNumber'] as String? ?? 'Not set';
