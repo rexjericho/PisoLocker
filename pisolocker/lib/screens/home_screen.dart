@@ -18,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _unlockScaleAnimation;
   bool _isAnimating = false;
   bool _isLocked = false; // Track locker status
+  bool _isLoading = true; // Track initial loading state
 
   @override
   void initState() {
@@ -26,8 +27,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<LockerProvider>(context, listen: false);
       await provider.loadActiveLockerFromStorage();
-      provider.loadLockers();
+      await provider.loadLockers();
       provider.subscribeToLockers();
+      setState(() {
+        _isLoading = false;
+      });
     });
 
     // Lock button animation
@@ -110,6 +114,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<LockerProvider>(context);
+    
+    // Show loading indicator while checking for active rental
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     
     // Show overlay if user hasn't rented a locker
     if (!provider.hasRentedLocker || !provider.isRentalActive()) {
