@@ -161,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_userData != null && _userData!.exists) {
       final rawData = _userData!.data();
       if (rawData != null) {
-        final data = Map<String, dynamic>.from(rawData);
+        final data = Map<String, dynamic>.from(rawData as Map<dynamic, dynamic>);
         _phoneNumberController.text = data['phoneNumber'] ?? '';
         _studentIDController.text = data['studentID'] ?? '';
         _addressController.text = data['address'] ?? '';
@@ -204,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final rawData = _userData?.data();
     final userDataMap = _isLoading || _userData == null || !_userData!.exists || rawData == null
         ? <String, dynamic>{} 
-        : Map<String, dynamic>.from(rawData);
+        : Map<String, dynamic>.from(rawData as Map<dynamic, dynamic>);
     
     return Scaffold(
       appBar: AppBar(
@@ -337,7 +337,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final rawData = _userData?.data();
     final userDataMap = _userData == null || !_userData!.exists || rawData == null
         ? <String, dynamic>{} 
-        : Map<String, dynamic>.from(rawData);
+        : Map<String, dynamic>.from(rawData as Map<dynamic, dynamic>);
     
     return Column(
       children: [
@@ -417,7 +417,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final rawData = _userData?.data();
     final userDataMap = _userData == null || !_userData!.exists || rawData == null
         ? <String, dynamic>{} 
-        : Map<String, dynamic>.from(rawData);
+        : Map<String, dynamic>.from(rawData as Map<dynamic, dynamic>);
     int score = (userDataMap['creditScore'] as num?)?.toInt() ?? 80;
     Color scoreColor;
     String status;
@@ -579,7 +579,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final data = Map<String, dynamic>.from(rawData);
+    final data = Map<String, dynamic>.from(rawData as Map<dynamic, dynamic>);
     
     final studentID = data['studentID'] as String? ?? 'Not set';
     final email = data['email'] as String? ?? _currentUser?.email ?? '';
@@ -665,7 +665,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    final data = Map<String, dynamic>.from(rawData);
+    final data = Map<String, dynamic>.from(rawData as Map<dynamic, dynamic>);
     final username = data['username'] as String? ?? _currentUser?.email?.split('@').first ?? 'User';
     final memberSince = (data['memberSince'] as Timestamp?)?.toDate() ?? DateTime.now();
     final accountStatus = data['accountStatus'] as String? ?? 'Active';
