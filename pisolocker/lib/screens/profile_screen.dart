@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../providers/locker_provider.dart';
 import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
@@ -172,8 +174,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _isEditing = true);
   }
   
-  void _showProfileSignOutDialog(BuildContext context) {
-    showDialog(
+  void _showProfileSignOutDialog(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -182,14 +184,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(dialogContext);
+                Navigator.pop(dialogContext, false);
               },
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(dialogContext);
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                Navigator.pop(dialogContext, true);
               },
               child: const Text('Sign Out'),
             ),
@@ -197,6 +198,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       },
     );
+    
+    if (confirmed == true && mounted) {
+      // Get provider and end session if there's an active rental
+      final provider = Provider.of<LockerProvider>(context, listen: false);
+      if (provider.hasRentedLocker) {
+        await provider.endSession();
+      }
+      // Clear local storage
+      await provider.clearActiveLocker();
+      // Sign out from Firebase Auth
+      await FirebaseAuth.instance.signOut();
+      // Navigate to login
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      }
+    }
   }
 
   @override
