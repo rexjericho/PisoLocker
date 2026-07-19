@@ -1,6 +1,5 @@
 ```
 # Build artifacts
-*.class
 *.o
 *.obj
 *.exe
@@ -8,18 +7,18 @@
 *.so
 *.a
 *.out
-*.pyc
-__pycache__/
 
 # Dependencies
 node_modules/
 venv/
 .venv/
-.env
-.env.local
-*.env.*
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+target/
+.gradle/
 
-# IDE and editor files
+# Editor/IDE files
 .vscode/
 .idea/
 *.swp
@@ -29,6 +28,9 @@ venv/
 # System files
 .DS_Store
 Thumbs.db
+.env
+.env.local
+*.env.*
 
 # Logs
 *.log
@@ -37,16 +39,6 @@ Thumbs.db
 coverage/
 htmlcov/
 .coverage
-
-# Distribution
-dist/
-build/
-target/
-.gradle/
-
-# Python cache
-.mypy_cache/
-.pytest_cache/
 
 # Compressed files
 *.zip

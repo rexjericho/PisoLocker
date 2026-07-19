@@ -198,7 +198,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userDataMap = _userData?.data() as Map<String, dynamic>?;
+    final userDataMap = _isLoading || _userData == null || !_userData!.exists 
+        ? <String, dynamic>{} 
+        : Map<String, dynamic>.from(_userData!.data() as Map<String, dynamic>);
     
     return Scaffold(
       appBar: AppBar(
@@ -328,7 +330,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    final userDataMap = _userData?.data() as Map<String, dynamic>?;
+    final userDataMap = _userData == null || !_userData!.exists 
+        ? <String, dynamic>{} 
+        : Map<String, dynamic>.from(_userData!.data() as Map<String, dynamic>);
     
     return Column(
       children: [
@@ -405,8 +409,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildCreditScoreCard(BuildContext context) {
     // Get credit score from user data, default to 80
-    final userDataMap = _userData?.data() as Map<String, dynamic>?;
-    int score = (userDataMap?['creditScore'] as num?)?.toInt() ?? 80;
+    final userDataMap = _userData == null || !_userData!.exists 
+        ? <String, dynamic>{} 
+        : Map<String, dynamic>.from(_userData!.data() as Map<String, dynamic>);
+    int score = (userDataMap['creditScore'] as num?)?.toInt() ?? 80;
     Color scoreColor;
     String status;
     
@@ -557,15 +563,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final data = _userData?.data() as Map<String, dynamic>?;
-    if (data == null) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: Center(child: Text('Profile data not found')),
-        ),
-      );
-    }
+    final data = Map<String, dynamic>.from(_userData!.data() as Map<String, dynamic>);
     
     final studentID = data['studentID'] as String? ?? 'Not set';
     final email = data['email'] as String? ?? _currentUser?.email ?? '';
