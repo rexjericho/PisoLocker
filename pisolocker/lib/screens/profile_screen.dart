@@ -55,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       _currentUser = _auth.currentUser;
       if (_currentUser != null) {
-        final doc = await _firestore.collection('users').doc(_currentUser!.uid).get();
+        final doc = await _firestore.collection('user').doc(_currentUser!.uid).get();
         if (mounted) {
           setState(() {
             _userData = doc;
@@ -99,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
       
-      await _firestore.collection('users').doc(_currentUser!.uid).update({
+      await _firestore.collection('user').doc(_currentUser!.uid).update({
         'profilePictureUrl': downloadUrl,
       });
       
@@ -129,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   
   Future<void> _saveProfile() async {
     try {
-      await _firestore.collection('users').doc(_currentUser!.uid).update({
+      await _firestore.collection('user').doc(_currentUser!.uid).update({
         'phoneNumber': _phoneNumberController.text.trim(),
         'studentID': _studentIDController.text.trim(),
         'address': _addressController.text.trim(),
