@@ -25,16 +25,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.initState();
     // Load active locker from storage and refresh UI
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final provider = Provider.of<LockerProvider>(context, listen: false);
+      final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
       
       // First clear any stale state from previous user sessions
-      await provider.loadActiveLockerFromStorage();
+      await lockerProvider.loadActiveLockerFromStorage();
       
       // Then load fresh locker data from Firestore
-      await provider.loadLockers();
+      await lockerProvider.loadLockers();
       
       // Subscribe to real-time updates
-      provider.subscribeToLockers();
+      lockerProvider.subscribeToLockers();
       
       // Force a rebuild after loading is complete
       if (mounted) {
@@ -97,8 +97,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     if (!mounted) return;
     
-    final provider = Provider.of<LockerProvider>(context, listen: false);
-    await provider.toggleLockStatus();
+    final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
+    await lockerProvider.toggleLockStatus();
     
     if (mounted) {
       _showActionDialog(context, 'Lock Locker', 'Are you sure you want to lock this locker?');
@@ -118,8 +118,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     if (!mounted) return;
     
-    final provider = Provider.of<LockerProvider>(context, listen: false);
-    await provider.toggleLockStatus();
+    final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
+    await lockerProvider.toggleLockStatus();
     
     if (mounted) {
       _showActionDialog(context, 'Unlock Locker', 'Are you sure you want to unlock this locker?');
@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<LockerProvider>(context);
+    final lockerProvider = Provider.of<LockerProvider>(context);
     
     // Show loading indicator while checking for active rental
     if (_isLoading) {
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
     
     // Show overlay if user hasn't rented a locker
-    if (!provider.hasRentedLocker || !provider.isRentalActive()) {
+    if (!lockerProvider.hasRentedLocker || !lockerProvider.isRentalActive()) {
       return Scaffold(
         body: Stack(
           children: [
@@ -285,9 +285,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     fontSize: 20,
                   ),
                 ),
-                if (provider.userName.isNotEmpty)
+                if (lockerProvider.userName.isNotEmpty)
                   Text(
-                    'Welcome, ${provider.userName}',
+                    'Welcome, ${lockerProvider.userName}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -322,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               // Locker ID Label (smaller)
               _buildInfoCard(
                 label: 'Locker ID',
-                value: provider.lockerId ?? 'N/A',
+                value: lockerProvider.lockerId ?? 'N/A',
                 icon: Icons.storage,
                 isSmall: true,
               ),
@@ -330,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               // OTP Label (smaller)
               _buildInfoCard(
                 label: 'Your OTP',
-                value: provider.otp ?? 'N/A',
+                value: lockerProvider.otp ?? 'N/A',
                 icon: Icons.password,
                 isOtp: true,
                 isSmall: true,
@@ -339,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               // Location Label
               _buildInfoCard(
                 label: 'Location',
-                value: provider.location ?? 'N/A',
+                value: lockerProvider.location ?? 'N/A',
                 icon: Icons.location_on,
                 isSmall: true,
               ),
@@ -522,8 +522,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildLockerStatusCard() {
-    final provider = Provider.of<LockerProvider>(context);
-    final currentLocker = provider.getLockerById(provider.lockerId ?? '');
+    final lockerProvider = Provider.of<LockerProvider>(context);
+    final currentLocker = lockerProvider.getLockerById(lockerProvider.lockerId ?? '');
     final lockStatus = currentLocker?.lockStatus ?? 'Unlocked';
     final isCurrentlyLocked = lockStatus == 'Locked';
     
@@ -700,9 +700,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Duration _calculateTimeRemaining() {
-    final provider = Provider.of<LockerProvider>(context, listen: false);
-    if (provider.rentalEndTime == null) return Duration.zero;
-    final remaining = provider.rentalEndTime!.difference(DateTime.now());
+    final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
+    if (lockerProvider.rentalEndTime == null) return Duration.zero;
+    final remaining = lockerProvider.rentalEndTime!.difference(DateTime.now());
     return remaining.isNegative ? Duration.zero : remaining;
   }
 
@@ -710,8 +710,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return StreamBuilder(
       stream: Stream.periodic(const Duration(seconds: 1)),
       builder: (context, snapshot) {
-        final provider = Provider.of<LockerProvider>(context, listen: false);
-        final expirationTime = provider.rentalEndTime;
+        final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
+        final expirationTime = lockerProvider.rentalEndTime;
         final currentTime = DateTime.now();
         
         if (expirationTime == null) {
@@ -940,7 +940,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _showEndSessionDialog(BuildContext context) {
-    final provider = Provider.of<LockerProvider>(context, listen: false);
+    final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
     
     showDialog(
       context: context,
@@ -959,7 +959,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               onPressed: () {
                 Navigator.of(context).pop();
                 // End the current session using provider
-                provider.endSession();
+                lockerProvider.endSession();
               },
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,
@@ -974,8 +974,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _showSignOutDialog(BuildContext context) {
-    final provider = Provider.of<LockerProvider>(context, listen: false);
-    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -993,12 +991,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               onPressed: () async {
                 Navigator.of(context).pop();
                 // End session if there's an active rental
-                final provider = Provider.of<LockerProvider>(context, listen: false);
-                if (provider.hasRentedLocker) {
-                  await provider.endSession();
+                final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
+                if (lockerProvider.hasRentedLocker) {
+                  await lockerProvider.endSession();
                 }
                 // Clear local storage
-                await provider.clearActiveLocker();
+                await lockerProvider.clearActiveLocker();
                 // Sign out from Firebase Auth
                 await FirebaseAuth.instance.signOut();
                 // Navigate to login
