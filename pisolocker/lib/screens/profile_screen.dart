@@ -158,13 +158,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
   
   void _startEditing() {
-    if (_userData != null && _userData!.exists && _userData!.data() != null) {
-      final data = Map<String, dynamic>.from(_userData!.data()!);
-      _phoneNumberController.text = data['phoneNumber'] ?? '';
-      _studentIDController.text = data['studentID'] ?? '';
-      _addressController.text = data['address'] ?? '';
-      _departmentController.text = data['department'] ?? '';
-      _usernameController.text = data['username'] ?? _currentUser!.email!.split('@').first;
+    if (_userData != null && _userData!.exists) {
+      final rawData = _userData!.data();
+      if (rawData != null) {
+        final data = Map<String, dynamic>.from(rawData);
+        _phoneNumberController.text = data['phoneNumber'] ?? '';
+        _studentIDController.text = data['studentID'] ?? '';
+        _addressController.text = data['address'] ?? '';
+        _departmentController.text = data['department'] ?? '';
+        _usernameController.text = data['username'] ?? _currentUser!.email!.split('@').first;
+      }
     }
     setState(() => _isEditing = true);
   }
@@ -198,9 +201,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userDataMap = _isLoading || _userData == null || !_userData!.exists || _userData!.data() == null
+    final rawData = _userData?.data();
+    final userDataMap = _isLoading || _userData == null || !_userData!.exists || rawData == null
         ? <String, dynamic>{} 
-        : Map<String, dynamic>.from(_userData!.data()!);
+        : Map<String, dynamic>.from(rawData);
     
     return Scaffold(
       appBar: AppBar(
@@ -330,9 +334,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    final userDataMap = _userData == null || !_userData!.exists || _userData!.data() == null
+    final rawData = _userData?.data();
+    final userDataMap = _userData == null || !_userData!.exists || rawData == null
         ? <String, dynamic>{} 
-        : Map<String, dynamic>.from(_userData!.data()!);
+        : Map<String, dynamic>.from(rawData);
     
     return Column(
       children: [
@@ -409,9 +414,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildCreditScoreCard(BuildContext context) {
     // Get credit score from user data, default to 80
-    final userDataMap = _userData == null || !_userData!.exists || _userData!.data() == null
+    final rawData = _userData?.data();
+    final userDataMap = _userData == null || !_userData!.exists || rawData == null
         ? <String, dynamic>{} 
-        : Map<String, dynamic>.from(_userData!.data()!);
+        : Map<String, dynamic>.from(rawData);
     int score = (userDataMap['creditScore'] as num?)?.toInt() ?? 80;
     Color scoreColor;
     String status;
@@ -554,7 +560,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    if (_userData == null || !_userData!.exists || _userData!.data() == null) {
+    if (_userData == null || !_userData!.exists) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: Text('Profile data not found')),
+        ),
+      );
+    }
+    
+    final rawData = _userData!.data();
+    if (rawData == null) {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(32),
@@ -563,7 +579,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final data = Map<String, dynamic>.from(_userData!.data()!);
+    final data = Map<String, dynamic>.from(rawData);
     
     final studentID = data['studentID'] as String? ?? 'Not set';
     final email = data['email'] as String? ?? _currentUser?.email ?? '';
@@ -630,7 +646,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    if (_userData == null || !_userData!.exists || _userData!.data() == null) {
+    if (_userData == null || !_userData!.exists) {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(32),
@@ -639,7 +655,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    final data = Map<String, dynamic>.from(_userData!.data()!);
+    final rawData = _userData!.data();
+    if (rawData == null) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: Text('Account data not found')),
+        ),
+      );
+    }
+    
+    final data = Map<String, dynamic>.from(rawData);
     final username = data['username'] as String? ?? _currentUser?.email?.split('@').first ?? 'User';
     final memberSince = (data['memberSince'] as Timestamp?)?.toDate() ?? DateTime.now();
     final accountStatus = data['accountStatus'] as String? ?? 'Active';
