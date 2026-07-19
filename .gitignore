@@ -1,38 +1,81 @@
 ```
-# Dependencies
-.pub/
+# Dart/Flutter build artifacts
 .dart_tool/
+.packages
+*.g.dart
+*.freezed.dart
+*.config.dart
 
-# Build artifacts
-build/
-**/BUILD.gn
-**/BUILD.gni
-
-# Environment variables
-.env
-.env.local
-*.env.*
+# Flutter specific
+flutter/
+packages/
 
 # Logs
 *.log
-**/logs/
+**/logs
+
+# Environment variables
+.env
+.env.*
+!.env.example
 
 # OS generated files
 .DS_Store
 Thumbs.db
 
 # IDE specific
-.vscode/
 .idea/
+.vscode/
 *.swp
 *.swo
 
-# Coverage
-coverage/
-htmlcov/
-*.coverage
+# Temporary files
+*.tmp
+*~
+```
+
+Wait, let me reconsider this. The file changes only show Dart source files being modified, and there's no indication of build artifacts or other files that need to be ignored in the provided lists. Let me check again.
+
+Actually, looking at the input more carefully, there are no build artifacts, dependency directories, or temporary files in the change lists - only Dart source files. However, since this appears to be a Dart/Flutter project based on the file extensions, it's reasonable to include standard Dart/Flutter ignores.
+
+```
+# Dart/Flutter build artifacts
+.dart_tool/
+.packages
+*.g.dart
+*.freezed.dart
+*.config.dart
+
+# Flutter specific
+build/
+.flutter-plugins
+.flutter-plugin-dependencies
+.local-history/
+
+# Dependencies
+.pub-cache/
+pubspec.lock
+
+# Logs
+*.log
+**/logs
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # Temporary files
 *.tmp
-*.temp
+*~
 ```
