@@ -17,7 +17,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _lockScaleAnimation;
   late Animation<double> _unlockScaleAnimation;
   bool _isAnimating = false;
-  bool _isLocked = false; // Track locker status
   bool _isLoading = true; // Track initial loading state
 
   @override
@@ -91,7 +90,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _showActionDialog(context, 'Lock Locker', 'Are you sure you want to lock this locker?');
       setState(() {
         _isAnimating = false;
-        _isLocked = true;
       });
     }
   }
@@ -110,7 +108,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _showActionDialog(context, 'Unlock Locker', 'Are you sure you want to unlock this locker?');
       setState(() {
         _isAnimating = false;
-        _isLocked = false;
       });
     }
   }

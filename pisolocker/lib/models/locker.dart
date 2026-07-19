@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 /// Enum representing the status of a locker
 enum LockerStatus { available, occupied, maintenance }
@@ -6,19 +7,19 @@ enum LockerStatus { available, occupied, maintenance }
 /// Model representing a locker in the PisoLocker system
 class Locker {
   final String id;
-  final String name;
+  final String lockerCode;
   final LockerStatus status;
   final String? location;
   final double? currentBalance; // in Piso
   final Duration? remainingTime;
   final String? rentedBy; // UID of user who rented it
-  final DateTime? rentalEndTime;
+  final Timestamp? rentalEndTime;
   final String lockStatus; // 'Locked' or 'Unlocked'
   final String? otp;
 
   const Locker({
     required this.id,
-    required this.name,
+    required this.lockerCode,
     this.status = LockerStatus.available,
     this.location,
     this.currentBalance,
@@ -34,12 +35,18 @@ class Locker {
   bool get isMaintenance => status == LockerStatus.maintenance;
   bool get isLocked => lockStatus == 'Locked';
 
+  /// Format rental end time for display
+  String get formattedRentalEndTime {
+    if (rentalEndTime == null) return '';
+    return DateFormat('h:mm a').format(rentalEndTime!.toDate());
+  }
+
   /// Create a Locker from Firestore document
   factory Locker.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Locker(
       id: doc.id,
-      name: data['name'] ?? 'Locker ${doc.id}',
+      lockerCode: data['lockerCode'] ?? 'Locker ${doc.id}',
       status: _parseStatus(data['status']),
       location: data['location'],
       currentBalance: (data['currentBalance'] ?? 0.0).toDouble(),
@@ -47,7 +54,7 @@ class Locker {
           ? Duration(minutes: data['remainingTimeMinutes']) 
           : null,
       rentedBy: data['rentedBy'],
-      rentalEndTime: data['rentalEndTime']?.toDate(),
+      rentalEndTime: data['rentalEndTime'],
       lockStatus: data['lockStatus'] ?? 'Unlocked',
       otp: data['otp'],
     );
@@ -56,7 +63,7 @@ class Locker {
   /// Convert Locker to Firestore-compatible map
   Map<String, dynamic> toFirestore() {
     return {
-      'name': name,
+      'lockerCode': lockerCode,
       'status': _statusToString(status),
       'location': location,
       'currentBalance': currentBalance ?? 0.0,
@@ -96,19 +103,19 @@ class Locker {
 
   Locker copyWith({
     String? id,
-    String? name,
+    String? lockerCode,
     LockerStatus? status,
     String? location,
     double? currentBalance,
     Duration? remainingTime,
     String? rentedBy,
-    DateTime? rentalEndTime,
+    Timestamp? rentalEndTime,
     String? lockStatus,
     String? otp,
   }) {
     return Locker(
       id: id ?? this.id,
-      name: name ?? this.name,
+      lockerCode: lockerCode ?? this.lockerCode,
       status: status ?? this.status,
       location: location ?? this.location,
       currentBalance: currentBalance ?? this.currentBalance,

@@ -58,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final doc = await _firestore.collection('user').doc(_currentUser!.uid).get();
         setState(() {
           _userData = doc;
-          final data = doc.data() as Map<String, dynamic>?;
+          final data = doc.data();
           _profileImageUrl = data?['profilePictureUrl'] as String?;
           _isLoading = false;
         });

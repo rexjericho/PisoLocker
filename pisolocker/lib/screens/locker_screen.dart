@@ -123,7 +123,7 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Successfully rented ${locker.name} for $coins Piso (${_formatDuration(time)})'),
+            content: Text('Successfully rented ${locker.lockerCode} for $coins Piso (${_formatDuration(time)})'),
             backgroundColor: Theme.of(context).colorScheme.primary,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -171,7 +171,7 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
               ),
               
               Text(
-                locker.name,
+                locker.lockerCode,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
