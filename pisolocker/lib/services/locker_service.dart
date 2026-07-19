@@ -182,22 +182,22 @@ class LockerService {
   Future<void> initializeDefaultLockers() async {
     try {
       final defaultLockers = [
-        {'name': 'Locker 1', 'location': 'Ground Floor - Near Entrance', 'status': 'Available'},
-        {'name': 'Locker 2', 'location': 'Ground Floor - Near Entrance', 'status': 'Available'},
-        {'name': 'Locker 3', 'location': 'First Floor - Hallway A', 'status': 'Available'},
-        {'name': 'Locker 4', 'location': 'First Floor - Hallway A', 'status': 'Available'},
-        {'name': 'Locker 5', 'location': 'Second Floor - Near Elevator', 'status': 'Available'},
+        {'lockerCode': 'Locker 1', 'location': 'Ground Floor - Near Entrance', 'status': 'Available'},
+        {'lockerCode': 'Locker 2', 'location': 'Ground Floor - Near Entrance', 'status': 'Available'},
+        {'lockerCode': 'Locker 3', 'location': 'First Floor - Hallway A', 'status': 'Available'},
+        {'lockerCode': 'Locker 4', 'location': 'First Floor - Hallway A', 'status': 'Available'},
+        {'lockerCode': 'Locker 5', 'location': 'Second Floor - Near Elevator', 'status': 'Available'},
       ];
 
       for (final lockerData in defaultLockers) {
         final existingLockers = await _firestore
             .collection(_collectionName)
-            .where('name', isEqualTo: lockerData['name'])
+            .where('lockerCode', isEqualTo: lockerData['lockerCode'])
             .get();
 
         if (existingLockers.docs.isEmpty) {
           await _firestore.collection(_collectionName).add({
-            'name': lockerData['name'],
+            'lockerCode': lockerData['lockerCode'],
             'location': lockerData['location'],
             'status': lockerData['status'],
             'currentBalance': 0.0,

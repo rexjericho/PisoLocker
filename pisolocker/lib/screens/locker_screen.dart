@@ -174,15 +174,6 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
                 ),
               ),
               
-              const SizedBox(height: 8),
-              
-              Text(
-                locker.id,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              
               const SizedBox(height: 24),
               
               if (locker.location != null) ...[
