@@ -53,6 +53,9 @@ class LockerProvider with ChangeNotifier {
       // Initialize default lockers if needed (first time only)
       await _lockerService.initializeDefaultLockers();
       
+      // Cleanup any expired locker sessions
+      await _lockerService.cleanupExpiredLockers();
+      
       // Get initial snapshot
       final snapshot = await FirebaseFirestore.instance.collection('lockers').get();
       _lockers = snapshot.docs.map((doc) => Locker.fromFirestore(doc)).toList();
