@@ -234,7 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 Text(
-                  'Welcome, ${userDataMap?['fullName'] as String? ?? 'Student'}',
+                  'Welcome, ${userDataMap['fullName'] as String? ?? 'Student'}',
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -389,7 +389,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          userDataMap?['fullName'] as String? ?? 'User',
+          userDataMap['fullName'] as String? ?? 'User',
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -397,7 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          userDataMap?['role'] as String? ?? 'User',
+          userDataMap['role'] as String? ?? 'User',
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey[600],
