@@ -18,8 +18,9 @@ class LockerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isAvailable = locker.isAvailable && !locker.isOccupied;
-    final isMaintenance = locker.isMaintenance;
+    final isAvailable = locker.status == LockerStatus.available;
+    final isMaintenance = locker.status == LockerStatus.maintenance;
+    final isOccupied = locker.status == LockerStatus.occupied;
 
     return Card(
       elevation: 2,
@@ -179,7 +180,7 @@ class LockerCard extends StatelessWidget {
                     child: const Text('Under Maintenance'),
                   ),
                 )
-              else if (!isAvailable && locker.isOccupied)
+              else if (isOccupied)
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
