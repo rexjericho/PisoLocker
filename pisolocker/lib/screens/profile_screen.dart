@@ -201,12 +201,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     if (confirmed == true && mounted) {
       // Get provider and end session if there's an active rental
-      final provider = Provider.of<LockerProvider>(context, listen: false);
-      if (provider.hasRentedLocker) {
-        await provider.endSession();
+      final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
+      if (lockerProvider.hasRentedLocker) {
+        await lockerProvider.endSession();
       }
       // Clear local storage
-      await provider.clearActiveLocker();
+      await lockerProvider.clearActiveLocker();
       // Sign out from Firebase Auth
       await FirebaseAuth.instance.signOut();
       // Navigate to login
