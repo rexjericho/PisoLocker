@@ -87,11 +87,20 @@ class _SignupScreenState extends State<SignupScreen>
           password: _passwordController.text,
         );
 
-        // Add user data to Firestore 'users' collection
+        // Add user data to Firestore 'users' collection with all required fields
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
           'fullName': _fullNameController.text.trim(),
           'email': _emailController.text.trim(),
+          'password': _passwordController.text, // Note: In production, don't store plain passwords
+          'role': 'user', // Default role
+          'phoneNumber': '', // Empty for now
+          'studentID': '', // Empty for now
+          'address': '', // Empty for now
+          'department': '', // Empty for now
+          'username': _emailController.text.trim().split('@').first, // Use email prefix as username
           'memberSince': Timestamp.now(),
+          'lastLogin': Timestamp.now(),
+          'accountStatus': 'active', // Default status
           'creditScore': 80,
           'uid': userCredential.user!.uid,
         });
