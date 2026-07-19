@@ -1,46 +1,56 @@
 ```
-# Firebase/Firestore related
-.firebaserc
-firebase-debug.log*
-*.rules.bak
+# Flutter/Dart specific
+.dart_tool/
+.build/
+packages/
+*.iws
+*.sw?
+lib/*.g.dart
 
-# Environment variables
+# Environment
 .env
 .env.local
-.env.*
+*.env.*
+
+# Logs
+*.log
+**/logs
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Dependencies
 node_modules/
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # Build outputs
 build/
 dist/
-*.log
+target/
+bin/
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
+# Temporary files
+*.tmp
+*.temp
+*.bak
 
-# Python specific
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-*.egg-info/
-.eggs/
-.coverage
+# Coverage
 coverage/
-htmlcov/
-.pytest_cache/
-.mypy_cache/
-.tox/
-noxfile.json
+*.lcov
 
-# System files
-.DS_Store
-Thumbs.db
+# Testing
+.flutter-plugins
+.flutter-plugin-dependencies
 ```
