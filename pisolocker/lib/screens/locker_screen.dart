@@ -86,6 +86,21 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
   void _processRental(Locker locker, int coins, Duration time) async {
     final provider = Provider.of<LockerProvider>(context, listen: false);
     
+    // Check if user already has an active rental
+    if (provider.hasRentedLocker && provider.isRentalActive()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('You already have an active rental. Please end it first.'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+      return;
+    }
+    
     // Calculate rental end time
     final rentalEndTime = DateTime.now().add(time);
     

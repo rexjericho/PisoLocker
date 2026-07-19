@@ -22,6 +22,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    // Load active locker from storage and refresh UI
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = Provider.of<LockerProvider>(context, listen: false);
+      await provider.loadActiveLockerFromStorage();
+      provider.loadLockers();
+      provider.subscribeToLockers();
+    });
 
     // Lock button animation
     _lockAnimationController = AnimationController(

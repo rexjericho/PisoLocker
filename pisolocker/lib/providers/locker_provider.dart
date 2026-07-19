@@ -204,6 +204,22 @@ class LockerProvider with ChangeNotifier {
         throw Exception('User not logged in');
       }
 
+      // Check if user already has an active rental
+      if (_hasRentedLocker && isRentalActive()) {
+        throw Exception('You already have an active rental. Please end it first.');
+      }
+
+      // Also check Firestore for any active rentals by this user
+      final userLockers = await FirebaseFirestore.instance
+          .collection('lockers')
+          .where('rentedBy', isEqualTo: user.uid)
+          .where('status', isEqualTo: 'Occupied')
+          .get();
+      
+      if (userLockers.docs.isNotEmpty) {
+        throw Exception('You already have an active rental. Please end it first.');
+      }
+
       // Rent locker and get OTP from service
       final generatedOtp = await _lockerService.rentLocker(lockerId, user.uid, totalRentalDuration);
       
