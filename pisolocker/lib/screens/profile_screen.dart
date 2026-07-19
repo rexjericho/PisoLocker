@@ -405,7 +405,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       scoreColor = Colors.orange[800]!;
       status = 'Fair';
     } else {
-      scoreColor = Colors.green[800]!;
+      scoreColor = const Color(0xFF4CAF50); // Reverted to original green
       status = 'Good';
     }
 
@@ -748,12 +748,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 decoration: InputDecoration(
                   hintText: hint,
                   filled: true,
-                  fillColor: Colors.grey[100],
+                  fillColor: Colors.white, // Changed to white for better visibility
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                    borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                  ),
                 ),
               ),
             ],
