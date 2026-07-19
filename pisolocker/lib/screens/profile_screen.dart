@@ -55,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       _currentUser = _auth.currentUser;
       if (_currentUser != null) {
-        final doc = await _firestore.collection('user').doc(_currentUser!.uid).get();
+        final doc = await _firestore.collection('users').doc(_currentUser!.uid).get();
         setState(() {
           _userData = doc;
           final data = doc.data();
@@ -95,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
       
-      await _firestore.collection('user').doc(_currentUser!.uid).update({
+      await _firestore.collection('users').doc(_currentUser!.uid).update({
         'profilePictureUrl': downloadUrl,
       });
       
@@ -125,7 +125,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   
   Future<void> _saveProfile() async {
     try {
-      await _firestore.collection('user').doc(_currentUser!.uid).update({
+      await _firestore.collection('users').doc(_currentUser!.uid).update({
         'phoneNumber': _phoneNumberController.text.trim(),
         'studentID': _studentIDController.text.trim(),
         'address': _addressController.text.trim(),
@@ -155,12 +155,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   
   void _startEditing() {
     if (_userData != null) {
-      final data = _userData!.data() as Map<String, dynamic>;
-      _phoneNumberController.text = data['phoneNumber'] ?? '';
-      _studentIDController.text = data['studentID'] ?? '';
-      _addressController.text = data['address'] ?? '';
-      _departmentController.text = data['department'] ?? '';
-      _usernameController.text = data['username'] ?? _currentUser!.email!.split('@').first;
+      final data = _userData!.data() as Map<String, dynamic>?;
+      _phoneNumberController.text = data?['phoneNumber'] ?? '';
+      _studentIDController.text = data?['studentID'] ?? '';
+      _addressController.text = data?['address'] ?? '';
+      _departmentController.text = data?['department'] ?? '';
+      _usernameController.text = data?['username'] ?? _currentUser!.email!.split('@').first;
     }
     setState(() => _isEditing = true);
   }
@@ -194,7 +194,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Cast userData to Map for easier access
     final userDataMap = _userData?.data() as Map<String, dynamic>?;
     
     return Scaffold(
