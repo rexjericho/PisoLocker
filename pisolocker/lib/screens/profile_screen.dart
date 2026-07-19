@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../providers/locker_provider.dart';
 import 'dart:io';
+import 'dart:async';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -201,13 +202,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     if (confirmed == true && mounted) {
       // Show loading indicator
+      final loadingCompleter = Completer<void>();
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (BuildContext loadingContext) => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        builder: (BuildContext loadContext) {
+          loadingCompleter.complete();
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
       );
+      
+      // Wait for dialog to show
+      await loadingCompleter.future;
 
       try {
         // Get provider and end session if there's an active rental
@@ -222,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         
         // Close loading dialog
         if (mounted) {
-          Navigator.of(loadingContext, rootNavigator: true).pop();
+          Navigator.of(context, rootNavigator: true).pop();
         }
         
         // Navigate to login
@@ -232,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       } catch (e) {
         // Close loading dialog on error
         if (mounted) {
-          Navigator.of(loadingContext, rootNavigator: true).pop();
+          Navigator.of(context, rootNavigator: true).pop();
         }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
