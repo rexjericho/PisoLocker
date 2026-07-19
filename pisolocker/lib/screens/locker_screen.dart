@@ -118,9 +118,6 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
     
     if (mounted) {
       if (success) {
-        // Get the generated OTP from provider
-        final generatedOtp = provider.otp;
-        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Successfully rented ${locker.lockerCode} for $coins Piso (${_formatDuration(time)})'),
