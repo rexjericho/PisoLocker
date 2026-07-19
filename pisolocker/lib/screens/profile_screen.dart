@@ -158,13 +158,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
   
   void _startEditing() {
-    if (_userData != null) {
-      final data = _userData?.data() as Map<String, dynamic>?;
-      _phoneNumberController.text = data?['phoneNumber'] ?? '';
-      _studentIDController.text = data?['studentID'] ?? '';
-      _addressController.text = data?['address'] ?? '';
-      _departmentController.text = data?['department'] ?? '';
-      _usernameController.text = data?['username'] ?? _currentUser!.email!.split('@').first;
+    if (_userData != null && _userData!.exists && _userData!.data() != null) {
+      final data = Map<String, dynamic>.from(_userData!.data()!);
+      _phoneNumberController.text = data['phoneNumber'] ?? '';
+      _studentIDController.text = data['studentID'] ?? '';
+      _addressController.text = data['address'] ?? '';
+      _departmentController.text = data['department'] ?? '';
+      _usernameController.text = data['username'] ?? _currentUser!.email!.split('@').first;
     }
     setState(() => _isEditing = true);
   }
@@ -198,9 +198,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userDataMap = _isLoading || _userData == null || !_userData!.exists 
+    final userDataMap = _isLoading || _userData == null || !_userData!.exists || _userData!.data() == null
         ? <String, dynamic>{} 
-        : Map<String, dynamic>.from(_userData!.data() as Map<String, dynamic>);
+        : Map<String, dynamic>.from(_userData!.data()!);
     
     return Scaffold(
       appBar: AppBar(
@@ -330,9 +330,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    final userDataMap = _userData == null || !_userData!.exists 
+    final userDataMap = _userData == null || !_userData!.exists || _userData!.data() == null
         ? <String, dynamic>{} 
-        : Map<String, dynamic>.from(_userData!.data() as Map<String, dynamic>);
+        : Map<String, dynamic>.from(_userData!.data()!);
     
     return Column(
       children: [
@@ -409,9 +409,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildCreditScoreCard(BuildContext context) {
     // Get credit score from user data, default to 80
-    final userDataMap = _userData == null || !_userData!.exists 
+    final userDataMap = _userData == null || !_userData!.exists || _userData!.data() == null
         ? <String, dynamic>{} 
-        : Map<String, dynamic>.from(_userData!.data() as Map<String, dynamic>);
+        : Map<String, dynamic>.from(_userData!.data()!);
     int score = (userDataMap['creditScore'] as num?)?.toInt() ?? 80;
     Color scoreColor;
     String status;
@@ -554,7 +554,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    if (_userData == null || !_userData!.exists) {
+    if (_userData == null || !_userData!.exists || _userData!.data() == null) {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(32),
@@ -563,7 +563,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final data = Map<String, dynamic>.from(_userData!.data() as Map<String, dynamic>);
+    final data = Map<String, dynamic>.from(_userData!.data()!);
     
     final studentID = data['studentID'] as String? ?? 'Not set';
     final email = data['email'] as String? ?? _currentUser?.email ?? '';
@@ -630,7 +630,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
-    final data = _userData?.data() as Map<String, dynamic>;
+    if (_userData == null || !_userData!.exists || _userData!.data() == null) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: Text('Account data not found')),
+        ),
+      );
+    }
+    
+    final data = Map<String, dynamic>.from(_userData!.data()!);
     final username = data['username'] as String? ?? _currentUser?.email?.split('@').first ?? 'User';
     final memberSince = (data['memberSince'] as Timestamp?)?.toDate() ?? DateTime.now();
     final accountStatus = data['accountStatus'] as String? ?? 'Active';
