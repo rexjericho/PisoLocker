@@ -278,8 +278,13 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
   @override
   void dispose() {
     // Clean up subscription when screen is disposed
-    final provider = Provider.of<LockerProvider>(context, listen: false);
-    provider.unsubscribeFromLockers();
+    // Use a safe approach to avoid accessing context after disposal
+    try {
+      final provider = Provider.of<LockerProvider>(context, listen: false);
+      provider.unsubscribeFromLockers();
+    } catch (e) {
+      // Widget already disposed, ignore
+    }
     super.dispose();
   }
 
