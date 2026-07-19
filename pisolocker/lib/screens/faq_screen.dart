@@ -103,7 +103,7 @@ class _FAQScreenState extends State<FAQScreen> {
   Future<void> _pickImages(ImageSource source) async {
     try {
       final pickedFile = await _picker.pickImage(source: source);
-      if (pickedFile != null) {
+      if (pickedFile != null && mounted) {
         setState(() {
           _selectedImages.add(pickedFile);
         });

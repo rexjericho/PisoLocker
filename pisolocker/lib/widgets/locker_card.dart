@@ -141,7 +141,7 @@ class LockerCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Until: ${DateFormat('h:mm a').format(locker.rentalEndTime!)}',
+                        'Until: ${DateFormat('h:mm a').format(locker.rentalEndTime!.toDate())}',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onTertiaryContainer,
                           fontWeight: FontWeight.w600,

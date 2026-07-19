@@ -136,7 +136,7 @@ class _CoinInsertionDialogState extends State<CoinInsertionDialog>
             const SizedBox(height: 8),
             
             Text(
-              widget.locker.name,
+              widget.locker.lockerCode,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
