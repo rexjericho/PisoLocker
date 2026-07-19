@@ -74,17 +74,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
   
   Future<void> _pickAndUploadImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    
-    if (pickedFile == null) return;
-    
-    setState(() {
-      _profileImageFile = File(pickedFile.path);
-      _isUploadingImage = true;
-    });
-    
     try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+      
+      if (pickedFile == null) return;
+      
+      setState(() {
+        _profileImageFile = File(pickedFile.path);
+        _isUploadingImage = true;
+      });
+      
       final ref = _storage.ref().child('profile_pictures/${_currentUser!.uid}.jpg');
       final uploadTask = ref.putFile(_profileImageFile!);
       final snapshot = await uploadTask;
@@ -107,8 +112,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       setState(() => _isUploadingImage = false);
       if (mounted) {
+        String errorMessage = 'Error uploading image: $e';
+        if (e.toString().contains('Platform_operatingSystem')) {
+          errorMessage = 'Image picker is not supported on this platform. Please use a mobile device.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error uploading image: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
         );
       }
     }
