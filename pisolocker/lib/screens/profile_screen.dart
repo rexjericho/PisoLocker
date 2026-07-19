@@ -748,7 +748,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 decoration: InputDecoration(
                   hintText: hint,
                   filled: true,
-                  fillColor: Colors.white, // Changed to white for better visibility
+                  fillColor: Colors.blueGrey, // Changed to white for better visibility
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Colors.grey.shade300),
