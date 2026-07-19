@@ -57,7 +57,6 @@ class DefaultFirebaseOptions {
     projectId: 'pisolocker',
     storageBucket: 'pisolocker.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBZDABYdMTNCEEEWwZP7mNqfKSiiBEwVAo',
     appId: '1:63210026230:ios:bc41ad4843102e195828d7',
