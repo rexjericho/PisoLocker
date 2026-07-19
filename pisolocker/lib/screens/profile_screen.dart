@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -8,6 +13,148 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  
+  User? _currentUser;
+  DocumentSnapshot? _userData;
+  bool _isLoading = true;
+  
+  // Controllers for edit mode
+  final _phoneNumberController = TextEditingController();
+  final _studentIDController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _departmentController = TextEditingController();
+  final _usernameController = TextEditingController();
+  
+  bool _isEditing = false;
+  File? _profileImageFile;
+  String? _profileImageUrl;
+  bool _isUploadingImage = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+  
+  @override
+  void dispose() {
+    _phoneNumberController.dispose();
+    _studentIDController.dispose();
+    _addressController.dispose();
+    _departmentController.dispose();
+    _usernameController.dispose();
+    super.dispose();
+  }
+  
+  Future<void> _loadUserData() async {
+    setState(() => _isLoading = true);
+    
+    try {
+      _currentUser = _auth.currentUser;
+      if (_currentUser != null) {
+        final doc = await _firestore.collection('user').doc(_currentUser!.uid).get();
+        setState(() {
+          _userData = doc;
+          _profileImageUrl = doc.data()?['profilePictureUrl'] as String?;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading profile: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+  
+  Future<void> _pickAndUploadImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (pickedFile == null) return;
+    
+    setState(() {
+      _profileImageFile = File(pickedFile.path);
+      _isUploadingImage = true;
+    });
+    
+    try {
+      final ref = _storage.ref().child('profile_pictures/${_currentUser!.uid}.jpg');
+      final uploadTask = ref.putFile(_profileImageFile!);
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      
+      await _firestore.collection('user').doc(_currentUser!.uid).update({
+        'profilePictureUrl': downloadUrl,
+      });
+      
+      setState(() {
+        _profileImageUrl = downloadUrl;
+        _isUploadingImage = false;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile picture updated!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      setState(() => _isUploadingImage = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+  
+  Future<void> _saveProfile() async {
+    try {
+      await _firestore.collection('user').doc(_currentUser!.uid).update({
+        'phoneNumber': _phoneNumberController.text.trim(),
+        'studentID': _studentIDController.text.trim(),
+        'address': _addressController.text.trim(),
+        'department': _departmentController.text.trim(),
+        'username': _usernameController.text.trim(),
+      });
+      
+      setState(() {
+        _isEditing = false;
+      });
+      
+      await _loadUserData();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving profile: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+  
+  void _startEditing() {
+    if (_userData != null) {
+      final data = _userData!.data() as Map<String, dynamic>;
+      _phoneNumberController.text = data['phoneNumber'] ?? '';
+      _studentIDController.text = data['studentID'] ?? '';
+      _addressController.text = data['address'] ?? '';
+      _departmentController.text = data['department'] ?? '';
+      _usernameController.text = data['username'] ?? _currentUser!.email!.split('@').first;
+    }
+    setState(() => _isEditing = true);
+  }
+  
   void _showProfileSignOutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -69,7 +216,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 Text(
-                  'Welcome, Student',
+                  'Welcome, ${_userData?.data()?['fullName'] as String? ?? 'Student'}',
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -155,33 +302,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileHeader(BuildContext context) {
+    if (_isLoading) {
+      return const Column(
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Loading profile...'),
+        ],
+      );
+    }
+    
     return Column(
       children: [
-        Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Theme.of(context).colorScheme.primary, width: 3),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          ),
-          child: const Icon(
-            Icons.person,
-            size: 60,
-            color: Colors.grey,
-          ),
+        Stack(
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Theme.of(context).colorScheme.primary, width: 3),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                image: _profileImageUrl != null
+                    ? DecorationImage(
+                        image: NetworkImage(_profileImageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              child: _profileImageUrl == null
+                  ? const Icon(Icons.person, size: 60, color: Colors.grey)
+                  : null,
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: _isUploadingImage ? null : _pickAndUploadImage,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: _isUploadingImage
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.camera_alt,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Juan Dela Cruz',
-          style: TextStyle(
+        Text(
+          _userData?.data()?['fullName'] as String? ?? 'User',
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          'Student',
+          _userData?.data()?['role'] as String? ?? 'User',
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey[600],
@@ -192,8 +386,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildCreditScoreCard(BuildContext context) {
-    // Calculate color based on score (0-100 scale)
-    int score = 85;
+    // Get credit score from user data, default to 80
+    int score = (_userData?.data()?['creditScore'] as num?)?.toInt() ?? 80;
     Color scoreColor;
     String status;
     
@@ -326,6 +520,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildPersonalInfoCard(BuildContext context) {
+    if (_isLoading || _userData == null) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+    
+    final data = _userData!.data() as Map<String, dynamic>;
+    final studentID = data['studentID'] as String? ?? 'Not set';
+    final email = data['email'] as String? ?? _currentUser?.email ?? '';
+    final phone = data['phoneNumber'] as String? ?? 'Not set';
+    final address = data['address'] as String? ?? 'Not set';
+    final department = data['department'] as String? ?? 'Not set';
+    
+    if (_isEditing) {
+      return Card(
+        elevation: 2,
+        shadowColor: Colors.black12,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              _buildEditField(Icons.school, 'Student ID', _studentIDController, 'Enter student ID'),
+              const SizedBox(height: 16),
+              _buildEditField(Icons.phone, 'Phone Number', _phoneNumberController, 'Enter phone number'),
+              const SizedBox(height: 16),
+              _buildEditField(Icons.location_on, 'Address', _addressController, 'Enter address'),
+              const SizedBox(height: 16),
+              _buildEditField(Icons.badge, 'Department', _departmentController, 'Enter department'),
+            ],
+          ),
+        ),
+      );
+    }
+    
     return Card(
       elevation: 2,
       shadowColor: Colors.black12,
@@ -336,17 +570,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildInfoRow(Icons.school, 'Student ID', '2024-00123', context),
+            _buildInfoRow(Icons.school, 'Student ID', studentID, context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.email, 'Email', 'juan.delacruz@university.edu', context),
+            _buildInfoRow(Icons.email, 'Email', email, context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.phone, 'Phone', '+63 912 345 6789', context),
+            _buildInfoRow(Icons.phone, 'Phone', phone, context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.calendar_today, 'Birthday', 'January 15, 2003', context),
+            _buildInfoRow(Icons.location_on, 'Address', address, context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.location_on, 'Address', '123 University St., City', context),
-            const Divider(height: 24),
-            _buildInfoRow(Icons.badge, 'Department', 'Computer Science', context),
+            _buildInfoRow(Icons.badge, 'Department', department, context),
           ],
         ),
       ),
@@ -354,6 +586,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAccountInfoCard(BuildContext context) {
+    if (_isLoading || _userData == null) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+    
+    final data = _userData!.data() as Map<String, dynamic>;
+    final username = data['username'] as String? ?? _currentUser?.email?.split('@').first ?? 'User';
+    final memberSince = (data['memberSince'] as Timestamp?)?.toDate() ?? DateTime.now();
+    final accountStatus = data['accountStatus'] as String? ?? 'Active';
+    
+    if (_isEditing) {
+      return Card(
+        elevation: 2,
+        shadowColor: Colors.black12,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              _buildEditField(Icons.account_circle, 'Username', _usernameController, 'Enter username'),
+            ],
+          ),
+        ),
+      );
+    }
+    
     return Card(
       elevation: 2,
       shadowColor: Colors.black12,
@@ -364,13 +628,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildInfoRow(Icons.account_circle, 'Username', 'juandelacruz', context),
+            _buildInfoRow(Icons.account_circle, 'Username', username, context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.lock, 'Member Since', 'January 2024', context),
+            _buildInfoRow(Icons.lock, 'Member Since', 
+              '${memberSince.month}/${memberSince.year}', context),
             const Divider(height: 24),
-            _buildInfoRow(Icons.verified_user, 'Account Status', 'Active', context, statusColor: Colors.green),
-            const Divider(height: 24),
-            _buildInfoRow(Icons.history, 'Last Login', 'Today, 10:30 AM', context),
+            _buildInfoRow(Icons.verified_user, 'Account Status', 
+              accountStatus, context, 
+              statusColor: accountStatus.toLowerCase() == 'active' ? Colors.green : Colors.orange),
           ],
         ),
       ),
@@ -443,17 +708,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildEditField(IconData icon, String label, TextEditingController controller, String hint) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: Theme.of(context).colorScheme.primary,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 2),
+              TextFormField(
+                controller: controller,
+                decoration: InputDecoration(
+                  hintText: hint,
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildActionButtons(BuildContext context) {
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            onPressed: () {
-              // TODO: Navigate to edit profile
-            },
-            icon: const Icon(Icons.edit),
-            label: const Text('Edit Profile'),
+            onPressed: _isEditing ? _saveProfile : _startEditing,
+            icon: Icon(_isEditing ? Icons.save : Icons.edit),
+            label: Text(_isEditing ? 'Save Changes' : 'Edit Profile'),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
@@ -462,36 +773,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ),
+        if (_isEditing) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                setState(() => _isEditing = false);
+              },
+              icon: const Icon(Icons.cancel),
+              label: const Text('Cancel'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () {
-              // TODO: Logout functionality
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        // TODO: Implement logout
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                      child: const Text('Logout'),
-                    ),
-                  ],
-                ),
-              );
-            },
+            onPressed: () => _showProfileSignOutDialog(context),
             icon: const Icon(Icons.logout),
             label: const Text('Logout'),
             style: ElevatedButton.styleFrom(
