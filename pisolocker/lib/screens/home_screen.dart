@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/locker_provider.dart';
 
 
@@ -979,11 +980,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                // Logout using provider and navigate to login
-                provider.logout();
-                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                // End session if there's an active rental
+                final provider = Provider.of<LockerProvider>(context, listen: false);
+                if (provider.hasRentedLocker) {
+                  await provider.endSession();
+                }
+                // Clear local storage
+                await provider.clearActiveLocker();
+                // Sign out from Firebase Auth
+                await FirebaseAuth.instance.signOut();
+                // Navigate to login
+                if (mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                }
               },
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.error,
