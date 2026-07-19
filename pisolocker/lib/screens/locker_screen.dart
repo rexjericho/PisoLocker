@@ -46,8 +46,10 @@ class _LockerScreenState extends State<LockerScreen> with TickerProviderStateMix
   }
 
   List<Locker> _getLockers(LockerProvider provider) {
-    // Use lockers from Firestore via provider
-    return provider.lockers;
+    // Use lockers from Firestore via provider and sort by lockerCode
+    final lockers = provider.lockers;
+    lockers.sort((a, b) => a.lockerCode.compareTo(b.lockerCode));
+    return lockers;
   }
 
   void _onBottomNavTap(int index) {

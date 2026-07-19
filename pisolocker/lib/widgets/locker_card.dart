@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/locker.dart';
 
 /// Reusable card widget for displaying locker information
@@ -123,8 +124,8 @@ class LockerCard extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
 
-              // Current rental info (if occupied)
-              if (!isAvailable && !isMaintenance && locker.remainingTime != null) ...[
+              // Current rental info (if occupied) - Show rentalEndTime instead of remaining time
+              if (!isAvailable && !isMaintenance && locker.rentalEndTime != null) ...[
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -134,13 +135,13 @@ class LockerCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.timer,
+                        Icons.access_time,
                         color: theme.colorScheme.onTertiaryContainer,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Time remaining: ${_formatDuration(locker.remainingTime!)}',
+                        'Until: ${DateFormat('h:mm a').format(locker.rentalEndTime!)}',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onTertiaryContainer,
                           fontWeight: FontWeight.w600,
@@ -238,14 +239,5 @@ class LockerCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatDuration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    if (hours > 0) {
-      return '$hours hr $minutes min';
-    }
-    return '$minutes min';
   }
 }

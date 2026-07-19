@@ -7,34 +7,21 @@ pubspec.lock
 
 # Build artifacts
 build/
-*.apk
-*.aab
-*.app
-*.exe
-*.dll
-*.so
-*.dylib
-
-# IDE files
-.idea/
-.vscode/
-*.swp
-*.swo
+**/BUILD
+**/*.g.dart
+**/*.freezed.dart
 
 # Logs
 *.log
+**/logs/
 
-# Environment
+# Environment variables
 .env
 .env.local
-*.env.*
+.env.*
+!.env.example
 
-# Coverage
-coverage/
-*.coverage
-
-# Temporary files
-*.tmp
+# OS generated files
 .DS_Store
 Thumbs.db
 ```
