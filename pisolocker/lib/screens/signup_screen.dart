@@ -88,12 +88,12 @@ class _SignupScreenState extends State<SignupScreen>
         );
 
         // Add user data to Firestore 'users' collection
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        await _firestore.collection('user').doc(userCredential.user!.uid).set({
           'fullName': _fullNameController.text.trim(),
           'email': _emailController.text.trim(),
           'memberSince': Timestamp.now(),
           'creditScore': 80,
-          'uid': userCredential.user!.uid,
+          'id': userCredential.user!.uid,
         });
 
         setState(() => _isLoading = false);
