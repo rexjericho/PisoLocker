@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import '../models/locker.dart';
 import '../services/locker_service.dart';
@@ -27,6 +28,8 @@ class LockerProvider with ChangeNotifier {
   // Lockers data from Firestore
   List<Locker> _lockers = [];
   bool _isLoading = false;
+  
+  static const String _activeLockerKey = 'active_locker_id';
 
   bool get isLoggedIn => _isLoggedIn;
   String get userName => _userName;
@@ -91,6 +94,91 @@ class LockerProvider with ChangeNotifier {
   void logout() {
     _isLoggedIn = false;
     _userName = '';
+    // Keep rental state for session persistence across logout/login
+    // Only clear when endSession() is called or time expires
+    notifyListeners();
+  }
+
+  /// Load active locker from local storage (called after login)
+  Future<void> loadActiveLockerFromStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedLockerId = prefs.getString(_activeLockerKey);
+      
+      if (savedLockerId != null && _auth.currentUser != null) {
+        // Verify the locker is still rented by this user in Firestore
+        final lockerDoc = await FirebaseFirestore.instance
+            .collection('lockers')
+            .doc(savedLockerId)
+            .get();
+        
+        if (lockerDoc.exists) {
+          final data = lockerDoc.data() as Map<String, dynamic>;
+          final rentedBy = data['rentedBy'] as String?;
+          final status = data['status'] as String?;
+          
+          if (rentedBy == _auth.currentUser!.uid && status == 'Occupied') {
+            // Restore rental state
+            _hasRentedLocker = true;
+            _lockerId = savedLockerId;
+            _otp = data['otp'] as String?;
+            _location = data['location'] as String?;
+            _rentedLockerId = savedLockerId;
+            
+            // Handle rental end time
+            final endTimeData = data['rentalEndTime'];
+            if (endTimeData is Timestamp) {
+              _rentalEndTime = endTimeData.toDate();
+              _rentedUntil = _rentalEndTime;
+              
+              // Calculate total duration based on remaining time
+              final now = DateTime.now();
+              if (_rentalEndTime!.isAfter(now)) {
+                _totalRentalDuration = _rentalEndTime!.difference(now);
+              } else {
+                // Rental expired, clean up
+                await clearActiveLocker();
+                return;
+              }
+            }
+            
+            notifyListeners();
+          } else {
+            // Locker no longer belongs to user, clear storage
+            await clearActiveLocker();
+          }
+        } else {
+          // Locker document doesn't exist, clear storage
+          await clearActiveLocker();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading active locker from storage: $e');
+    }
+  }
+
+  /// Save active locker ID to local storage
+  Future<void> _saveActiveLockerToStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (_lockerId != null) {
+        await prefs.setString(_activeLockerKey, _lockerId!);
+      }
+    } catch (e) {
+      debugPrint('Error saving active locker to storage: $e');
+    }
+  }
+
+  /// Clear active locker from local storage
+  Future<void> clearActiveLocker() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_activeLockerKey);
+    } catch (e) {
+      debugPrint('Error clearing active locker from storage: $e');
+    }
+    
+    // Also clear local state
     _hasRentedLocker = false;
     _lockerId = null;
     _otp = null;
@@ -128,6 +216,10 @@ class LockerProvider with ChangeNotifier {
       _totalRentalDuration = totalRentalDuration;
       _rentedLockerId = lockerId;
       _rentedUntil = rentalEndTime;
+      
+      // Save to local storage for persistence
+      await _saveActiveLockerToStorage();
+      
       notifyListeners();
       
       return true;
@@ -158,15 +250,8 @@ class LockerProvider with ChangeNotifier {
   }
 
   void endSession() {
-    _hasRentedLocker = false;
-    _lockerId = null;
-    _otp = null;
-    _location = null;
-    _rentalEndTime = null;
-    _totalRentalDuration = null;
-    _rentedLockerId = null;
-    _rentedUntil = null;
-    notifyListeners();
+    // Clear from local storage and state
+    clearActiveLocker();
   }
 
   // Check if a specific locker is currently rented

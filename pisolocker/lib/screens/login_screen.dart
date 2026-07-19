@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../providers/locker_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -68,6 +70,10 @@ class _LoginScreenState extends State<LoginScreen>
         if (!mounted) return;
         
         setState(() => _isLoading = false);
+        
+        // Load active locker from storage after successful login
+        final lockerProvider = Provider.of<LockerProvider>(context, listen: false);
+        await lockerProvider.loadActiveLockerFromStorage();
         
         // Use WidgetsBinding to ensure we're on the next frame
         WidgetsBinding.instance.addPostFrameCallback((_) {
