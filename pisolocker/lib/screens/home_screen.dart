@@ -84,9 +84,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     await _lockAnimationController.forward();
     await _lockAnimationController.reverse();
 
+    if (!mounted) return;
+    
+    final provider = Provider.of<LockerProvider>(context, listen: false);
+    await provider.toggleLockStatus();
+    
     if (mounted) {
-      final provider = Provider.of<LockerProvider>(context, listen: false);
-      await provider.toggleLockStatus();
       _showActionDialog(context, 'Lock Locker', 'Are you sure you want to lock this locker?');
       setState(() {
         _isAnimating = false;
@@ -102,9 +105,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     await _unlockAnimationController.forward();
     await _unlockAnimationController.reverse();
 
+    if (!mounted) return;
+    
+    final provider = Provider.of<LockerProvider>(context, listen: false);
+    await provider.toggleLockStatus();
+    
     if (mounted) {
-      final provider = Provider.of<LockerProvider>(context, listen: false);
-      await provider.toggleLockStatus();
       _showActionDialog(context, 'Unlock Locker', 'Are you sure you want to unlock this locker?');
       setState(() {
         _isAnimating = false;

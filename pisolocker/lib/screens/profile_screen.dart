@@ -56,16 +56,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _currentUser = _auth.currentUser;
       if (_currentUser != null) {
         final doc = await _firestore.collection('users').doc(_currentUser!.uid).get();
-        setState(() {
-          _userData = doc;
-          final data = doc.data();
-          _profileImageUrl = data?['profilePictureUrl'] as String?;
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _userData = doc;
+            final data = doc.data();
+            _profileImageUrl = data?['profilePictureUrl'] as String?;
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
-      setState(() => _isLoading = false);
       if (mounted) {
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading profile: $e'), backgroundColor: Colors.red),
         );
