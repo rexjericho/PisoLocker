@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection: Users can only read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Lockers collection: 
+    // - Authenticated users can read all lockers
+    // - Authenticated users can create/update lockers (needed for initial setup and renting)
+    // - Only allow updates that follow specific logic if you want stricter control later
+    match /lockers/{lockerId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null;
+      allow delete: if false; // Prevent accidental deletion of locker definitions
+    }
+  }
+}

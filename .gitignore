@@ -1,5 +1,41 @@
 ```
-# Configuration and setup files
-FIREBASE_SETUP.md
-firestore.rules
+# Dependencies
+.dart_tool/
+.packages
+.pub/
+
+# Build artifacts
+build/
+*.apk
+*.aab
+*.app
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Logs
+*.log
+**/logs/
+
+# Environment variables
+.env
+.env.local
+*.env.*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# OS generated files
+.DS_Store
+Thumbs.db
 ```

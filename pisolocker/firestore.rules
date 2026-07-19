@@ -9,9 +9,13 @@ service cloud.firestore {
     }
     
     // Allow authenticated users to read lockers
+    // Allow any authenticated user to create lockers (for initialization)
+    // Only admins can update/delete lockers
     match /lockers/{lockerId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && get(/databases/$(database)/documents/user/$(request.auth.uid)).data.role == 'admin';
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+        get(/databases/$(database)/documents/user/$(request.auth.uid)).data.role == 'admin';
     }
   }
 }
