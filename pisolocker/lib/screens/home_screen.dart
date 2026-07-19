@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 import '../providers/locker_provider.dart';
 
 
@@ -926,7 +927,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             FilledButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // TODO: Add actual lock/unlock logic here
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('$title action initiated')),
                 );
@@ -992,13 +992,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Navigator.of(dialogContext).pop();
                 
                 // Show loading indicator
+                final loadingCompleter = Completer<void>();
                 showDialog(
                   context: dialogContext,
                   barrierDismissible: false,
-                  builder: (BuildContext loadingContext) => const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  builder: (BuildContext loadContext) {
+                    loadingCompleter.complete();
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
                 );
+                
+                // Wait for dialog to show
+                await loadingCompleter.future;
 
                 try {
                   // End session if there's an active rental
@@ -1013,7 +1020,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   
                   // Close loading dialog
                   if (dialogContext.mounted) {
-                    Navigator.of(loadingContext, rootNavigator: true).pop();
+                    Navigator.of(dialogContext, rootNavigator: true).pop();
                   }
                   
                   // Navigate to login
@@ -1023,7 +1030,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 } catch (e) {
                   // Close loading dialog on error
                   if (dialogContext.mounted) {
-                    Navigator.of(loadingContext, rootNavigator: true).pop();
+                    Navigator.of(dialogContext, rootNavigator: true).pop();
                   }
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
