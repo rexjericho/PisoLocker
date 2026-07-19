@@ -108,35 +108,14 @@ class LockerProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final savedLockerId = prefs.getString(_activeLockerKey);
       
-      // If no saved locker ID or no current user, search Firestore for any active rentals
+      // If no current user, clear everything
       if (_auth.currentUser == null) {
         await clearActiveLocker();
         return;
       }
       
-      // First, check if the saved locker ID belongs to the current user
-      if (savedLockerId != null) {
-        final lockerDoc = await FirebaseFirestore.instance
-            .collection('lockers')
-            .doc(savedLockerId)
-            .get();
-        
-        if (lockerDoc.exists) {
-          final data = lockerDoc.data() as Map<String, dynamic>;
-          final rentedBy = data['rentedBy'] as String?;
-          final status = data['status'] as String?;
-          
-          // Critical check: Ensure the locker is rented by the CURRENT logged-in user
-          if (rentedBy == _auth.currentUser!.uid && status == 'Occupied') {
-            // Restore rental state for this user
-            await _restoreRentalState(data, savedLockerId);
-            return;
-          }
-        }
-      }
-      
-      // If saved locker doesn't exist or doesn't belong to current user,
-      // search Firestore for any lockers rented by this user
+      // ALWAYS search Firestore for any lockers rented by the current user
+      // This ensures we find the correct locker even if localStorage has stale data
       await _findActiveRentalInFirestore();
       
     } catch (e) {
