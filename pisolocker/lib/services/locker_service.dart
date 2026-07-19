@@ -1,11 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:math';
 import '../models/locker.dart';
 
 /// Service class for managing locker operations with Firestore
 class LockerService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collectionName = 'lockers';
+
+  /// Generate random 4-digit OTP
+  String _generateOTP() {
+    final random = Random();
+    return (1000 + random.nextInt(9000)).toString();
+  }
 
   /// Get a stream of all lockers
   Stream<List<Locker>> getLockersStream() {
@@ -42,17 +49,40 @@ class LockerService {
     }
   }
 
-  /// Rent a locker
-  Future<void> rentLocker(String lockerId, String userId, Duration duration) async {
+  /// Rent a locker - returns the generated OTP
+  Future<String> rentLocker(String lockerId, String userId, Duration duration) async {
     try {
+      final lockerRef = _firestore.collection(_collectionName).doc(lockerId);
+      final otp = _generateOTP();
       final rentalEndTime = DateTime.now().add(duration);
-      await _firestore.collection(_collectionName).doc(lockerId).update({
-        'status': 'Occupied',
-        'rentedBy': userId,
-        'rentalEndTime': Timestamp.fromDate(rentalEndTime),
-        'remainingTimeMinutes': duration.inMinutes,
-        'currentBalance': 0.0,
+
+      // Use transaction to ensure atomic update
+      await _firestore.runTransaction((transaction) async {
+        final snapshot = await transaction.get(lockerRef);
+        
+        if (!snapshot.exists) {
+          throw Exception('Locker does not exist');
+        }
+
+        final data = snapshot.data() as Map<String, dynamic>;
+        final status = data['status'] as String;
+
+        if (status != 'Available') {
+          throw Exception('Locker is not available');
+        }
+
+        // Update locker with rental info and OTP
+        transaction.update(lockerRef, {
+          'status': 'Occupied',
+          'rentedBy': userId,
+          'rentalEndTime': Timestamp.fromDate(rentalEndTime),
+          'remainingTimeMinutes': duration.inMinutes,
+          'currentBalance': 0.0,
+          'otp': otp,
+        });
       });
+
+      return otp;
     } catch (e) {
       debugPrint('Error renting locker: $e');
       rethrow;
@@ -93,6 +123,7 @@ class LockerService {
         'rentalEndTime': FieldValue.delete(),
         'remainingTimeMinutes': FieldValue.delete(),
         'currentBalance': 0.0,
+        'otp': FieldValue.delete(),
       });
     } catch (e) {
       debugPrint('Error releasing locker: $e');
