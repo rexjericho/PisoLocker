@@ -1,23 +1,21 @@
 ```
-# Dart/Flutter specific
-.dart_tool/
-.packages
-.pub-cache/
-pubspec.lock
-
-# Build outputs
-build/
-*.g.dart
-
-# Logs
-*.log
-**/logs
+# Firebase/Firestore related
+.firebaserc
+firebase-debug.log*
+*.rules.bak
 
 # Environment variables
 .env
 .env.local
 .env.*
-!.env.example
+
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+*.log
 
 # IDE files
 .vscode/
@@ -25,7 +23,24 @@ build/
 *.swp
 *.swo
 
-# OS generated files
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg-info/
+.eggs/
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.tox/
+noxfile.json
+
+# System files
 .DS_Store
 Thumbs.db
 ```
