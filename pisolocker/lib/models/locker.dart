@@ -13,6 +13,8 @@ class Locker {
   final Duration? remainingTime;
   final String? rentedBy; // UID of user who rented it
   final DateTime? rentalEndTime;
+  final String lockStatus; // 'Locked' or 'Unlocked'
+  final String? otp;
 
   const Locker({
     required this.id,
@@ -23,11 +25,14 @@ class Locker {
     this.remainingTime,
     this.rentedBy,
     this.rentalEndTime,
+    this.lockStatus = 'Unlocked',
+    this.otp,
   });
 
   bool get isAvailable => status == LockerStatus.available;
   bool get isOccupied => status == LockerStatus.occupied;
   bool get isMaintenance => status == LockerStatus.maintenance;
+  bool get isLocked => lockStatus == 'Locked';
 
   /// Create a Locker from Firestore document
   factory Locker.fromFirestore(DocumentSnapshot doc) {
@@ -43,6 +48,8 @@ class Locker {
           : null,
       rentedBy: data['rentedBy'],
       rentalEndTime: data['rentalEndTime']?.toDate(),
+      lockStatus: data['lockStatus'] ?? 'Unlocked',
+      otp: data['otp'],
     );
   }
 
@@ -56,6 +63,8 @@ class Locker {
       'remainingTimeMinutes': remainingTime?.inMinutes,
       'rentedBy': rentedBy,
       'rentalEndTime': rentalEndTime,
+      'lockStatus': lockStatus,
+      'otp': otp,
     };
   }
 
@@ -94,6 +103,8 @@ class Locker {
     Duration? remainingTime,
     String? rentedBy,
     DateTime? rentalEndTime,
+    String? lockStatus,
+    String? otp,
   }) {
     return Locker(
       id: id ?? this.id,
@@ -104,6 +115,8 @@ class Locker {
       remainingTime: remainingTime ?? this.remainingTime,
       rentedBy: rentedBy ?? this.rentedBy,
       rentalEndTime: rentalEndTime ?? this.rentalEndTime,
+      lockStatus: lockStatus ?? this.lockStatus,
+      otp: otp ?? this.otp,
     );
   }
 }

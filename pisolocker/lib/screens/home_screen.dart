@@ -86,6 +86,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     await _lockAnimationController.reverse();
 
     if (mounted) {
+      final provider = Provider.of<LockerProvider>(context, listen: false);
+      await provider.toggleLockStatus();
       _showActionDialog(context, 'Lock Locker', 'Are you sure you want to lock this locker?');
       setState(() {
         _isAnimating = false;
@@ -103,6 +105,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     await _unlockAnimationController.reverse();
 
     if (mounted) {
+      final provider = Provider.of<LockerProvider>(context, listen: false);
+      await provider.toggleLockStatus();
       _showActionDialog(context, 'Unlock Locker', 'Are you sure you want to unlock this locker?');
       setState(() {
         _isAnimating = false;
@@ -504,11 +508,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildLockerStatusCard() {
-    final statusColor = _isLocked 
+    final provider = Provider.of<LockerProvider>(context);
+    final currentLocker = provider.getLockerById(provider.lockerId ?? '');
+    final lockStatus = currentLocker?.lockStatus ?? 'Unlocked';
+    final isCurrentlyLocked = lockStatus == 'Locked';
+    
+    final statusColor = isCurrentlyLocked 
         ? Theme.of(context).colorScheme.error 
         : Theme.of(context).colorScheme.primary;
-    final statusIcon = _isLocked ? Icons.lock : Icons.lock_open;
-    final statusText = _isLocked ? 'LOCKED' : 'UNLOCKED';
+    final statusIcon = isCurrentlyLocked ? Icons.lock : Icons.lock_open;
+    final statusText = isCurrentlyLocked ? 'LOCKED' : 'UNLOCKED';
 
     return Container(
       width: double.infinity,
@@ -544,28 +553,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             color: statusColor,
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Locker Status',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                statusText,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: statusColor,
-                  letterSpacing: 2,
-                ),
-              ),
-            ],
+          Text(
+            statusText,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: statusColor,
+            ),
           ),
         ],
       ),
