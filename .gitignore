@@ -1,25 +1,16 @@
 ```
-# Build artifacts
-*.o
-*.obj
-*.so
-*.a
-*.lib
-*.dll
-*.dylib
-*.exe
-*.out
-
-# Dependencies
-node_modules/
-vendor/
+# Dart/Flutter build outputs
+/build/
+.dart_tool/
+.packages
+*.g.dart
+*.freezed.dart
 
 # IDE files
-.vscode/
 .idea/
+.vscode/
 *.swp
 *.swo
-*.tmp
 
 # Logs
 *.log
@@ -29,18 +20,12 @@ vendor/
 .env.local
 *.env.*
 
-# Coverage reports
+# Temporary files
+*.tmp
 coverage/
 htmlcov/
-*.coverage
+.coverage
 
-# Dart/Flutter specific
-.dart_tool/
-.packages
-.pub/
-build/
-ios/.symlinks/
-flutter/ephemeral/
-*.iws
-*.lock
+# Dependencies cache
+pubspec.lock
 ```
