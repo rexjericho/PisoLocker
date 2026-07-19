@@ -58,7 +58,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final doc = await _firestore.collection('user').doc(_currentUser!.uid).get();
         setState(() {
           _userData = doc;
-          _profileImageUrl = doc.data()?['profilePictureUrl'] as String?;
+          final data = doc.data() as Map<String, dynamic>?;
+          _profileImageUrl = data?['profilePictureUrl'] as String?;
           _isLoading = false;
         });
       }
@@ -184,6 +185,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Cast userData to Map for easier access
+    final userDataMap = _userData?.data() as Map<String, dynamic>?;
+    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -216,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 Text(
-                  'Welcome, ${_userData?.data()?['fullName'] as String? ?? 'Student'}',
+                  'Welcome, ${userDataMap?['fullName'] as String? ?? 'Student'}',
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -312,6 +316,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
     
+    final userDataMap = _userData?.data() as Map<String, dynamic>?;
+    
     return Column(
       children: [
         Stack(
@@ -367,7 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          _userData?.data()?['fullName'] as String? ?? 'User',
+          userDataMap?['fullName'] as String? ?? 'User',
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -375,7 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          _userData?.data()?['role'] as String? ?? 'User',
+          userDataMap?['role'] as String? ?? 'User',
           style: TextStyle(
             fontSize: 16,
             color: Colors.grey[600],
@@ -387,7 +393,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildCreditScoreCard(BuildContext context) {
     // Get credit score from user data, default to 80
-    int score = (_userData?.data()?['creditScore'] as num?)?.toInt() ?? 80;
+    final userDataMap = _userData?.data() as Map<String, dynamic>?;
+    int score = (userDataMap?['creditScore'] as num?)?.toInt() ?? 80;
     Color scoreColor;
     String status;
     
