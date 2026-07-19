@@ -268,9 +268,28 @@ class LockerProvider with ChangeNotifier {
     }
   }
 
-  void endSession() {
-    // Clear from local storage and state
-    clearActiveLocker();
+  Future<void> endSession() async {
+    try {
+      if (_lockerId != null && _auth.currentUser != null) {
+        // Update Firestore to release the locker
+        await FirebaseFirestore.instance
+            .collection('lockers')
+            .doc(_lockerId)
+            .update({
+          'status': 'Available',
+          'rentedBy': FieldValue.delete(),
+          'otp': FieldValue.delete(),
+          'rentalEndTime': FieldValue.delete(),
+        });
+        
+        debugPrint('Locker $_lockerId released successfully');
+      }
+    } catch (e) {
+      debugPrint('Error releasing locker: $e');
+    } finally {
+      // Clear from local storage and state
+      await clearActiveLocker();
+    }
   }
 
   // Check if a specific locker is currently rented

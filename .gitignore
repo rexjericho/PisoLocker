@@ -1,9 +1,8 @@
 ```
-# Dart/Flutter build outputs
-/build/
-/.dart_tool/
-*.g.dart
-*.freezed.dart
+# Dependencies
+.dart_tool/
+.build/
+.dependencies/
 
 # Logs
 *.log
@@ -13,9 +12,8 @@
 .env
 .env.local
 .env.*
-!.env.example
 
-# IDE specific
+# IDE files
 .idea/
 .vscode/
 *.swp
@@ -24,4 +22,13 @@
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Coverage
+coverage/
+*.lcov
+
+# Temporary files
+*.tmp
+**/temp/
+**/tmp/
 ```
