@@ -1,24 +1,73 @@
 ```
-# Dependencies
-.dart_tool/
-.build/
-dependencies/
+# Build artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
 
-# Logs and temp files
+# Dependencies
+node_modules/
+vendor/bundle/
+Pods/
+Carthage/
+.swift-version
+.pub-cache/
+.build/
+
+# Logs
 *.log
 *.tmp
-*.swp
 
 # Environment
 .env
 .env.local
 *.env.*
 
-# Editors
-.idea/
+# Editor/IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
 
-# Build outputs
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Gradle
+.gradle/
 build/
-dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage*
+.nox/
+.pytest_cache/
+.mypy_cache/
+
+# Compressed
+*.zip
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.gz
+*.rar
+*.7z
 ```
