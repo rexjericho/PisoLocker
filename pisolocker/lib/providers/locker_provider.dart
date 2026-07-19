@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
 import '../models/locker.dart';
 import '../services/locker_service.dart';
 
@@ -52,7 +54,7 @@ class LockerProvider with ChangeNotifier {
       final snapshot = await FirebaseFirestore.instance.collection('lockers').get();
       _lockers = snapshot.docs.map((doc) => Locker.fromFirestore(doc)).toList();
     } catch (e) {
-      print('Error loading lockers: $e');
+      debugPrint('Error loading lockers: $e');
       _lockers = [];
     } finally {
       _isLoading = false;
@@ -130,7 +132,7 @@ class LockerProvider with ChangeNotifier {
       
       return true;
     } catch (e) {
-      print('Error renting locker: $e');
+      debugPrint('Error renting locker: $e');
       return false;
     }
   }
@@ -150,7 +152,7 @@ class LockerProvider with ChangeNotifier {
       
       return true;
     } catch (e) {
-      print('Error adding time: $e');
+      debugPrint('Error adding time: $e');
       return false;
     }
   }

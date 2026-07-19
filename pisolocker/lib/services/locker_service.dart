@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/locker.dart';
 
 /// Service class for managing locker operations with Firestore
@@ -24,7 +25,7 @@ class LockerService {
       }
       return null;
     } catch (e) {
-      print('Error getting locker: $e');
+      debugPrint('Error getting locker: $e');
       return null;
     }
   }
@@ -36,7 +37,7 @@ class LockerService {
         'status': _statusToString(status),
       });
     } catch (e) {
-      print('Error updating locker status: $e');
+      debugPrint('Error updating locker status: $e');
       rethrow;
     }
   }
@@ -53,7 +54,7 @@ class LockerService {
         'currentBalance': 0.0,
       });
     } catch (e) {
-      print('Error renting locker: $e');
+      debugPrint('Error renting locker: $e');
       rethrow;
     }
   }
@@ -78,7 +79,7 @@ class LockerService {
         'rentalEndTime': Timestamp.fromDate(newRentalEnd),
       });
     } catch (e) {
-      print('Error adding time to locker: $e');
+      debugPrint('Error adding time to locker: $e');
       rethrow;
     }
   }
@@ -94,7 +95,7 @@ class LockerService {
         'currentBalance': 0.0,
       });
     } catch (e) {
-      print('Error releasing locker: $e');
+      debugPrint('Error releasing locker: $e');
       rethrow;
     }
   }
@@ -127,7 +128,7 @@ class LockerService {
         }
       }
     } catch (e) {
-      print('Error initializing default lockers: $e');
+      debugPrint('Error initializing default lockers: $e');
     }
   }
 
