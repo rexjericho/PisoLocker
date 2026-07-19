@@ -18,7 +18,7 @@ service cloud.firestore {
       // Allow authenticated users to update a locker if:
       // 1. The locker is currently "Available" (anyone can rent it)
       // OR
-      // 2. The user is the one who rented it (rentedBy == uid) - for extending/releasing
+      // 2. The user is the one who rented it (rentedBy == uid) - for extending/releasing/toggling lock
       allow update: if request.auth != null && 
                     (resource.data.status == 'Available' || resource.data.rentedBy == request.auth.uid);
       

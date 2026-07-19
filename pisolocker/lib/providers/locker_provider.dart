@@ -280,6 +280,7 @@ class LockerProvider with ChangeNotifier {
           'rentedBy': FieldValue.delete(),
           'otp': FieldValue.delete(),
           'rentalEndTime': FieldValue.delete(),
+          'lockStatus': 'Unlocked',
         });
         
         debugPrint('Locker $_lockerId released successfully');
@@ -289,6 +290,28 @@ class LockerProvider with ChangeNotifier {
     } finally {
       // Clear from local storage and state
       await clearActiveLocker();
+    }
+  }
+
+  /// Toggle lock status between Locked and Unlocked
+  Future<void> toggleLockStatus() async {
+    try {
+      if (_lockerId == null || _auth.currentUser == null) return;
+      
+      final currentLocker = getLockerById(_lockerId!);
+      if (currentLocker == null) return;
+      
+      final newStatus = currentLocker.lockStatus == 'Locked' ? 'Unlocked' : 'Locked';
+      
+      await FirebaseFirestore.instance
+          .collection('lockers')
+          .doc(_lockerId)
+          .update({'lockStatus': newStatus});
+      
+      debugPrint('Locker $_lockerId lock status changed to: $newStatus');
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error toggling lock status: $e');
     }
   }
 
